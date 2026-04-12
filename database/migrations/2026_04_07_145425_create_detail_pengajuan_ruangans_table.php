@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pengajuan_id')->constrained('pengajuans')->cascadeOnDelete();
             $table->foreignId('ruangan_id')->constrained('ruangans')->cascadeOnDelete();
-            $table->date('tanggal_pakai');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
             $table->time('waktu_mulai');
             $table->time('waktu_selesai');
             $table->integer('jumlah_pengguna');

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pengajuans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('nomor_hp')->nullable();
             $table->enum('tipe_pengajuan', ['ruangan', 'alat', 'pengujian']);
             $table->enum('status', ['diajukan', 'diverifikasi', 'ditolak', 'disetujui', 'selesai'])->default('diajukan');
             $table->string('judul_proyek')->nullable();

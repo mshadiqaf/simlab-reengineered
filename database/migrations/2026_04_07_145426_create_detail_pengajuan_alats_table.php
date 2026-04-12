@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('pengajuan_id')->constrained('pengajuans')->cascadeOnDelete();
             $table->foreignId('alat_id')->constrained('alats')->cascadeOnDelete();
             $table->integer('jumlah_dipinjam');
-            $table->date('tanggal_pinjam');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
             $table->text('keperluan_spesifik');
             $table->integer('durasi_jam')->nullable();
             $table->timestamps();
