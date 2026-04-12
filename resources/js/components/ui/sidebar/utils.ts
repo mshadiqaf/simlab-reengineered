@@ -8,7 +8,7 @@ export type SidebarContext = {
     isMobile: Ref<boolean>;
     openMobile: Ref<boolean>;
     setOpenMobile: (value: boolean) => void;
-    toggleSidebar: () => void;
+  toggleSidebar: () => void;
 };
 
 export const SIDEBAR_COOKIE_NAME = "sidebar_state"
