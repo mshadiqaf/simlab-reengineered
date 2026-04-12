@@ -49,12 +49,19 @@ Jalankan perintah artisan untuk *generate* app key di file `.env`:
 php artisan key:generate
 ```
 
-### 6. Setup Database & Migrasi
-Silakan buka file `.env` di *code editor* Anda dan sesuaikan kredensial database yang Anda gunakan.
-*Contoh menggunakan SQLite:*
+### 6. Setup Variabel Environment & Database
+Silakan buka file `.env` di *code editor* Anda, dan sesuaikan isinya dengan struktur sistem lokal Anda. Berdasarkan bawaan project, variabel pengaturan utama menggunakan MySQL dengan nama database `simlab-reengineered`:
+
 ```env
-DB_CONNECTION=sqlite
-# Atau jika menggunakan MySQL, sesuaikan DB_DATABASE, DB_USERNAME, dan DB_PASSWORD
+APP_NAME="SIMLAB - Reengineered"
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=simlab-reengineered
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 Setelah database disiapkan, jalankan perintah untuk *migrate* tabel:
 ```bash
