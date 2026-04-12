@@ -21,7 +21,7 @@
 
 @theme inline {
   /* Default tailwind spacing adalah 0.25rem. Tingkatkan nilai ini (misal: 0.3rem) agar padding/margin terlihat lebih renggang secara global */
-  --spacing: 0.275rem;
+  --spacing: 0.3rem;
 
   --font-sans: 'Figtree', sans-serif;
 
