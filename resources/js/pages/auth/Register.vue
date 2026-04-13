@@ -65,7 +65,7 @@ defineOptions({
           :tabindex="3"
           autocomplete="new-password"
           name="password"
-          :placeholder="$t('Password')"
+          :placeholder="$t('Enter your password here')"
         />
         <InputError :message="errors.password" />
       </div>
@@ -78,7 +78,7 @@ defineOptions({
           :tabindex="4"
           autocomplete="new-password"
           name="password_confirmation"
-          :placeholder="$t('Confirm password')"
+          :placeholder="$t('Enter your confirmation password here')"
         />
         <InputError :message="errors.password_confirmation" />
       </div>

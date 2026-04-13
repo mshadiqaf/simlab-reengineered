@@ -1,11 +1,11 @@
 // File ini untuk mengubah image & quotes carousel di Auth Page
 
 export const carouselImages = [
-  { id: 1, src: '/images/gambar_labter_1.webp', alt: 'Gambar Laboratorium Terpadu 1' },
-  { id: 2, src: '/images/gambar_labter_1.webp', alt: 'Gambar Laboratorium Terpadu 2' },
-  { id: 3, src: '/images/gambar_labter_1.webp', alt: 'Gambar Laboratorium Terpadu 3' },
-  { id: 4, src: '/images/gambar_labter_1.webp', alt: 'Gambar Laboratorium Terpadu 4' },
-  { id: 5, src: '/images/gambar_labter_1.webp', alt: 'Gambar Laboratorium Terpadu 5' }
+  { id: 1, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 1' },
+  { id: 2, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 2' },
+  { id: 3, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 3' },
+  { id: 4, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 4' },
+  { id: 5, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 5' }
 ];
 
 export const carouselQuotes = [
