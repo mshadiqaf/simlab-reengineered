@@ -65,7 +65,7 @@ defineProps<{
     <div
       :class="[
         'relative hidden h-full flex-col p-10 text-white lg:flex',
-        isRegister ? 'order-first dark:border-r' : 'dark:border-l',
+        isRegister ? 'order-first' : '',
       ]"
     >
       <div class="absolute inset-3 overflow-clip rounded-3xl bg-zinc-900 select-none">
