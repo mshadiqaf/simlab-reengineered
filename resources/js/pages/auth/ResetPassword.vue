@@ -35,7 +35,7 @@ const inputEmail = ref(props.email);
   >
     <div class="grid gap-6">
       <div class="grid gap-2">
-        <Label for="email">Email</Label>
+        <Label for="email">{{ $t('Email') }}</Label>
         <Input
           id="email"
           type="email"
@@ -49,33 +49,33 @@ const inputEmail = ref(props.email);
       </div>
 
       <div class="grid gap-2">
-        <Label for="password">Password</Label>
+        <Label for="password">{{ $t('Password') }}</Label>
         <PasswordInput
           id="password"
           name="password"
           autocomplete="new-password"
           class="mt-1 block w-full"
           autofocus
-          placeholder="Password"
+          :placeholder="$t('Password')"
         />
         <InputError :message="errors.password" />
       </div>
 
       <div class="grid gap-2">
-        <Label for="password_confirmation"> Confirm password </Label>
+        <Label for="password_confirmation"> {{ $t('Confirm password') }} </Label>
         <PasswordInput
           id="password_confirmation"
           name="password_confirmation"
           autocomplete="new-password"
           class="mt-1 block w-full"
-          placeholder="Confirm password"
+          :placeholder="$t('Confirm password')"
         />
         <InputError :message="errors.password_confirmation" />
       </div>
 
       <Button type="submit" class="mt-4 w-full" :disabled="processing" data-test="reset-password-button">
         <Spinner v-if="processing" />
-        Reset password
+        {{ $t('Reset password') }}
       </Button>
     </div>
   </Form>

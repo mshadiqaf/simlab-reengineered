@@ -21,7 +21,7 @@ defineOptions({
   <Form v-bind="store.form()" reset-on-success v-slot="{ errors, processing }">
     <div class="space-y-6">
       <div class="grid gap-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{{ $t('Password') }}</Label>
         <PasswordInput
           id="password"
           name="password"
@@ -37,7 +37,7 @@ defineOptions({
       <div class="flex items-center">
         <Button class="w-full" :disabled="processing" data-test="confirm-password-button">
           <Spinner v-if="processing" />
-          Confirm password
+          {{ $t('Confirm password') }}
         </Button>
       </div>
     </div>
