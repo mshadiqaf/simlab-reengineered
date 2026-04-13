@@ -2,10 +2,11 @@
 
 export const carouselImages = [
   { id: 1, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 1' },
-  { id: 2, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 2' },
-  { id: 3, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 3' },
-  { id: 4, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 4' },
-  { id: 5, src: '/images/photos/lab-terpadu-1.webp', alt: 'Gambar Laboratorium Terpadu 5' }
+  { id: 2, src: '/images/photos/fasad-gedung-utama.jpg', alt: 'Gambar Laboratorium Terpadu 2' },
+  { id: 3, src: '/images/photos/gedung-eksterior-1.jpg', alt: 'Gambar Laboratorium Terpadu 3' },
+  { id: 4, src: '/images/photos/drone-view-kampus.jpg', alt: 'Gambar Laboratorium Terpadu 4' },
+  { id: 5, src: '/images/photos/gedung-eksterior-2.jpg', alt: 'Gambar Laboratorium Terpadu 5' },
+  { id: 6, src: '/images/photos/pemandangan-dari-jendela.jpg', alt: 'Gambar Laboratorium Terpadu 6' }
 ];
 
 export const carouselQuotes = [
