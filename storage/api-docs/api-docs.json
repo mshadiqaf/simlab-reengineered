@@ -1,0 +1,151 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SIMLAB API",
+        "description": "Dokumentasi REST API untuk Sistem Informasi Manajemen Laboratorium (SIMLAB) - Institut Teknologi Kalimantan",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Server Pengembangan Lokal"
+        }
+    ],
+    "paths": {
+        "/api/ruangan": {
+            "get": {
+                "tags": [
+                    "Master Data"
+                ],
+                "summary": "Mengambil daftar seluruh ruangan laboratorium",
+                "operationId": "2a74b2cefa55876f4b2a23432b0f816e",
+                "responses": {
+                    "200": {
+                        "description": "Daftar ruangan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama_ruangan": {
+                                                        "type": "string",
+                                                        "example": "Labter 1 - Lab. Fisika Dasar A (R202)"
+                                                    },
+                                                    "kapasitas": {
+                                                        "type": "integer",
+                                                        "example": 40
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/alat": {
+            "get": {
+                "tags": [
+                    "Master Data"
+                ],
+                "summary": "Mengambil daftar alat yang tersedia (stok > 0)",
+                "operationId": "1602cbd10fd08fcc185bf57084b0c4d0",
+                "responses": {
+                    "200": {
+                        "description": "Daftar alat berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama_alat": {
+                                                        "type": "string",
+                                                        "example": "Osiloskop Digital"
+                                                    },
+                                                    "satuan": {
+                                                        "type": "string",
+                                                        "example": "Unit"
+                                                    },
+                                                    "total_stok": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pengujian": {
+            "get": {
+                "tags": [
+                    "Master Data"
+                ],
+                "summary": "Mengambil daftar jenis pengujian yang tersedia",
+                "operationId": "7cdefff8263e15b38098229f88108214",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jenis pengujian berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama_pengujian": {
+                                                        "type": "string",
+                                                        "example": "Uji Kuat Tekan Beton"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Master Data",
+            "description": "Endpoint untuk mengambil data referensi (Ruangan, Alat, Jenis Pengujian)"
+        }
+    ]
+}
