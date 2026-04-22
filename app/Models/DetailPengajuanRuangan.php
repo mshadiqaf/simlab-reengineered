@@ -3,8 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DetailPengajuanRuangan extends Model
 {
-    //
+    protected $guarded = [];
+
+    public function pengajuan(): BelongsTo
+    {
+        return $this->belongsTo(Pengajuan::class);
+    }
+
+    public function ruangan(): BelongsTo
+    {
+        return $this->belongsTo(Ruangan::class);
+    }
 }
