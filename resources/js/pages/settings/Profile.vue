@@ -61,6 +61,32 @@ const user = computed(() => page.props.auth.user);
       </div>
 
       <div class="grid gap-2">
+        <Label for="nim">NIM / NIP</Label>
+        <Input
+          id="nim"
+          class="mt-1 block w-full"
+          name="nim"
+          :default-value="user.nim"
+          autocomplete="nim"
+          placeholder="Nomor Induk Mahasiswa / Pegawai"
+        />
+        <InputError class="mt-2" :message="errors.nim" />
+      </div>
+
+      <div class="grid gap-2">
+        <Label for="program_studi">Program Studi / Unit</Label>
+        <Input
+          id="program_studi"
+          class="mt-1 block w-full"
+          name="program_studi"
+          :default-value="user.program_studi"
+          autocomplete="program_studi"
+          placeholder="Program Studi / Unit Kerja"
+        />
+        <InputError class="mt-2" :message="errors.program_studi" />
+      </div>
+
+      <div class="grid gap-2">
         <Label for="email">{{ $t('Email address') }}</Label>
         <Input
           id="email"

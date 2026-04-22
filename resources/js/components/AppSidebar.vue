@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid } from 'lucide-vue-next';
+import { LayoutGrid, FileText, Calendar, PlusCircle, CheckSquare, ClipboardCheck } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,26 +19,76 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: dashboard(),
-    icon: LayoutGrid,
-  },
-];
+const page = usePage();
 
-const footerNavItems: NavItem[] = [
-  // {
-  //   title: 'Repository',
-  //   href: 'https://github.com/laravel/vue-starter-kit',
-  //   icon: FolderGit2,
-  // },
-  // {
-  //   title: 'Documentation',
-  //   href: 'https://laravel.com/docs/starter-kits#vue',
-  //   icon: BookOpen,
-  // },
-];
+const mainNavItems = computed<NavItem[]>(() => {
+  const roles = page.props.auth?.user?.roles || [];
+  
+  const baseItems: NavItem[] = [
+    {
+      title: 'Dashboard',
+      href: dashboard(),
+      icon: LayoutGrid,
+    },
+  ];
+
+  if (roles.includes('Mahasiswa')) {
+    return [
+      ...baseItems,
+      {
+        title: 'New Submission',
+        href: '/pengajuan/baru',
+        icon: PlusCircle,
+      },
+      {
+        title: 'Submission History',
+        href: '/pengajuan',
+        icon: FileText,
+      },
+      {
+        title: 'Availability',
+        href: '/ketersediaan',
+        icon: Calendar,
+      },
+    ];
+  }
+
+  if (roles.includes('Kepala Laboratorium')) {
+    return [
+      ...baseItems,
+      {
+        title: 'Incoming Submissions',
+        href: '/kepala-lab',
+        icon: ClipboardCheck,
+      },
+      {
+        title: 'Availability',
+        href: '/ketersediaan',
+        icon: Calendar,
+      },
+    ];
+  }
+
+  if (roles.includes('Petugas Laboran')) {
+    return [
+      ...baseItems,
+      {
+        title: 'Validation',
+        href: '/laboran',
+        icon: CheckSquare,
+      },
+      {
+        title: 'Availability',
+        href: '/ketersediaan',
+        icon: Calendar,
+      },
+    ];
+  }
+
+  return baseItems;
+});
+
+const footerNavItems: NavItem[] = [];
 </script>
 
 <template>

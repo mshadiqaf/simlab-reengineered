@@ -9,6 +9,20 @@ Route::inertia('/', 'Welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    
+    // Mahasiswa
+    Route::inertia('pengajuan', 'pengajuan/Index')->name('pengajuan.index');
+    Route::inertia('pengajuan/baru', 'pengajuan/Create')->name('pengajuan.create');
+    Route::inertia('pengajuan/{id}', 'pengajuan/Show')->name('pengajuan.show');
+    Route::inertia('ketersediaan', 'ketersediaan/Index')->name('ketersediaan.index');
+
+    // Kepala Lab
+    Route::inertia('kepala-lab', 'kepala-lab/Index')->name('kepala-lab.index');
+    Route::inertia('kepala-lab/{id}', 'kepala-lab/Show')->name('kepala-lab.show');
+
+    // Laboran
+    Route::inertia('laboran', 'laboran/Index')->name('laboran.index');
+    Route::inertia('laboran/{id}', 'laboran/Show')->name('laboran.show');
 });
 
 use App\Http\Controllers\Api\MasterDataController;

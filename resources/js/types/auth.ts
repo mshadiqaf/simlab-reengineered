@@ -2,6 +2,9 @@ export type User = {
   id: number;
   name: string;
   email: string;
+  nim?: string;
+  program_studi?: string;
+  roles?: string[];
   avatar?: string;
   email_verified_at: string | null;
   created_at: string;
