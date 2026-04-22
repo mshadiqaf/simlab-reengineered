@@ -18,7 +18,17 @@ class PengajuanResource extends JsonResource
             'tujuan_penggunaan' => $this->tujuan_penggunaan,
             'dosen_pembimbing'  => $this->dosen_pembimbing,
             'email_dosen'       => $this->email_dosen,
+            'catatan_reviewer'  => $this->catatan_reviewer,
             'dibuat_pada'       => $this->created_at->format('d M Y, H:i'),
+
+            // Info pengaju — hanya muncul jika relasi user di-load (untuk tampilan Kepala Lab)
+            'pengaju' => $this->whenLoaded('user', fn() => [
+                'id'            => $this->user->id,
+                'nama'          => $this->user->name,
+                'nim'           => $this->user->nim,
+                'program_studi' => $this->user->program_studi,
+                'email'         => $this->user->email,
+            ]),
 
             // Detail berbeda sesuai tipe — hanya yang relevan yang akan terisi
             'detail_ruangan'  => $this->whenLoaded('detailRuangan', fn() => [
