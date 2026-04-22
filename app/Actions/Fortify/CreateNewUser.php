@@ -20,14 +20,25 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
+            // Aturan dasar profil (name + email)
             ...$this->profileRules(),
+            // Aturan tambahan khusus register (identitas, kategori, prodi)
+            ...$this->registrationRules(),
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
+        $user = User::create([
+            'name'          => $input['name'],
+            'email'         => $input['email'],
+            'password'      => $input['password'],
+            'nim'           => $input['identitas'],
+            'program_studi' => $input['program_studi'] ?? null,
         ]);
+
+        // Mahasiswa dan dosen (serta eksternal) semua mendapat role 'Mahasiswa'.
+        // Role Kepala Laboratorium & Laboran diberikan secara manual oleh admin.
+        $user->assignRole('Mahasiswa');
+
+        return $user;
     }
 }
