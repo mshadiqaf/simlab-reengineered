@@ -8,16 +8,52 @@ use Illuminate\Validation\Rule;
 trait ProfileValidationRules
 {
     /**
-     * Get the validation rules used to validate user profiles.
-     *
-     * @return array<string, array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>>
+     * Aturan validasi untuk EDIT PROFIL (Settings).
+     * Hanya name + email. Tidak perlu identitas/kategori.
      */
     protected function profileRules(?int $userId = null): array
     {
         return [
-            'name' => $this->nameRules(),
+            'name'  => $this->nameRules(),
             'email' => $this->emailRules($userId),
         ];
+    }
+
+    /**
+     * Aturan validasi TAMBAHAN khusus untuk form REGISTER.
+     * Dipanggil hanya oleh CreateNewUser, bukan ProfileUpdateRequest.
+     */
+    protected function registrationRules(): array
+    {
+        return [
+            'identitas'          => $this->identitasRules(),
+            'kategori_pendaftar' => $this->kategoriRules(),
+            'program_studi'      => $this->programStudiRules(),
+        ];
+    }
+
+    /**
+     * NIM / NIP / NIPH / Identitas Lainnya — selalu required saat daftar.
+     */
+    protected function identitasRules(): array
+    {
+        return ['required', 'string', 'max:50'];
+    }
+
+    /**
+     * Kategori pendaftar: mahasiswa | dosen | eksternal.
+     */
+    protected function kategoriRules(): array
+    {
+        return ['required', 'string', 'in:mahasiswa,dosen,eksternal'];
+    }
+
+    /**
+     * Program Studi / Instansi — wajib hanya jika kategori mahasiswa/dosen.
+     */
+    protected function programStudiRules(): array
+    {
+        return ['nullable', 'string', 'max:255', 'required_if:kategori_pendaftar,mahasiswa', 'required_if:kategori_pendaftar,dosen'];
     }
 
     /**
