@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePengajuanRequest;
 use App\Http\Resources\PengajuanResource;
 use App\Models\Pengajuan;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,8 @@ use OpenApi\Attributes as OA;
 
 class PengajuanController extends Controller
 {
+    use ApiResponse;
+
     #[OA\Post(
         path: '/api/pengajuan',
         summary: 'Membuat pengajuan baru (ruangan / alat / pengujian)',
@@ -119,8 +122,10 @@ class PengajuanController extends Controller
             };
         });
 
-        return new PengajuanResource(
-            $pengajuan->load(['user', 'detailRuangan.ruangan', 'detailAlat.alat', 'detailUji.jenisPengujian'])
+        return $this->successResponse(
+            new PengajuanResource($pengajuan->load(['user', 'detailRuangan.ruangan', 'detailAlat.alat', 'detailUji.jenisPengujian'])),
+            'Pengajuan berhasil disubmit. Silakan tunggu verifikasi dari Kepala Lab.',
+            201
         );
     }
 

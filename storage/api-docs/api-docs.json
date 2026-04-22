@@ -72,6 +72,341 @@
                 ]
             }
         },
+        "/api/kepala-lab/pengajuan": {
+            "get": {
+                "tags": [
+                    "Kepala Laboratorium"
+                ],
+                "summary": "Daftar semua pengajuan masuk (Kepala Lab)",
+                "description": "Mengembalikan seluruh pengajuan dari semua user. Dapat difilter berdasarkan status dan tipe. Hanya dapat diakses oleh user dengan role Kepala Laboratorium.",
+                "operationId": "df7e0837040de2cb7b7178cb472a9618",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter berdasarkan status pengajuan",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "diajukan",
+                                "diverifikasi",
+                                "ditolak",
+                                "disetujui",
+                                "selesai"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tipe",
+                        "in": "query",
+                        "description": "Filter berdasarkan tipe pengajuan",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ruangan",
+                                "alat",
+                                "pengujian"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar pengajuan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "tipe_pengajuan": {
+                                                        "type": "string",
+                                                        "example": "ruangan"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "diajukan"
+                                                    },
+                                                    "judul_proyek": {
+                                                        "type": "string",
+                                                        "example": "Praktikum Fisika Dasar"
+                                                    },
+                                                    "dibuat_pada": {
+                                                        "type": "string",
+                                                        "example": "22 Apr 2026, 16:00"
+                                                    },
+                                                    "pengaju": {
+                                                        "properties": {
+                                                            "nama": {
+                                                                "type": "string",
+                                                                "example": "Budi Santoso"
+                                                            },
+                                                            "nim": {
+                                                                "type": "string",
+                                                                "example": "04231011"
+                                                            },
+                                                            "program_studi": {
+                                                                "type": "string",
+                                                                "example": "Teknik Elektro"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Akses ditolak — bukan Kepala Laboratorium"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/pengajuan/{id}": {
+            "get": {
+                "tags": [
+                    "Kepala Laboratorium"
+                ],
+                "summary": "Detail satu pengajuan (Kepala Lab)",
+                "description": "Menampilkan seluruh detail pengajuan beserta data pengaju. Digunakan Kepala Lab sebelum mengambil keputusan verifikasi.",
+                "operationId": "b98a1286991fa8cdb1c43d5efb10a096",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengajuan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "tipe_pengajuan": {
+                                                    "type": "string",
+                                                    "example": "ruangan"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "diajukan"
+                                                },
+                                                "judul_proyek": {
+                                                    "type": "string",
+                                                    "example": "Praktikum Fisika Dasar"
+                                                },
+                                                "tujuan_penggunaan": {
+                                                    "type": "string",
+                                                    "example": "Digunakan untuk praktikum semester 2"
+                                                },
+                                                "catatan_reviewer": {
+                                                    "type": "string",
+                                                    "example": null,
+                                                    "nullable": true
+                                                },
+                                                "dibuat_pada": {
+                                                    "type": "string",
+                                                    "example": "22 Apr 2026, 16:00"
+                                                },
+                                                "pengaju": {
+                                                    "properties": {
+                                                        "nama": {
+                                                            "type": "string",
+                                                            "example": "Budi Santoso"
+                                                        },
+                                                        "nim": {
+                                                            "type": "string",
+                                                            "example": "04231011"
+                                                        },
+                                                        "program_studi": {
+                                                            "type": "string",
+                                                            "example": "Teknik Elektro"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "budi@student.itk.ac.id"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "detail_ruangan": {
+                                                    "properties": {
+                                                        "ruangan": {
+                                                            "type": "string",
+                                                            "example": "Lab. Fisika Dasar A (R202)"
+                                                        },
+                                                        "tanggal_mulai": {
+                                                            "type": "string",
+                                                            "example": "2026-05-01"
+                                                        },
+                                                        "tanggal_selesai": {
+                                                            "type": "string",
+                                                            "example": "2026-05-01"
+                                                        },
+                                                        "waktu_mulai": {
+                                                            "type": "string",
+                                                            "example": "08:00:00"
+                                                        },
+                                                        "waktu_selesai": {
+                                                            "type": "string",
+                                                            "example": "12:00:00"
+                                                        },
+                                                        "jumlah_pengguna": {
+                                                            "type": "integer",
+                                                            "example": 20
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pengajuan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/pengajuan/{id}/verifikasi": {
+            "patch": {
+                "tags": [
+                    "Kepala Laboratorium"
+                ],
+                "summary": "Verifikasi (setujui atau tolak) sebuah pengajuan",
+                "description": "Mengubah status pengajuan menjadi `diverifikasi` (lanjut ke Laboran) atau `ditolak`. Catatan reviewer bersifat opsional namun sangat disarankan diisi saat menolak.",
+                "operationId": "0cb60a043e0cc7ded8e282337e6e3128",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "diverifikasi",
+                                        "enum": [
+                                            "diverifikasi",
+                                            "ditolak"
+                                        ]
+                                    },
+                                    "catatan_reviewer": {
+                                        "type": "string",
+                                        "example": "Dokumen lengkap, pengajuan disetujui untuk diproses Laboran.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status pengajuan berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengajuan berhasil diverifikasi."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "diverifikasi"
+                                                },
+                                                "catatan_reviewer": {
+                                                    "type": "string",
+                                                    "example": "Dokumen lengkap."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal atau status tidak valid"
+                    },
+                    "409": {
+                        "description": "Pengajuan sudah pernah diverifikasi sebelumnya"
+                    },
+                    "404": {
+                        "description": "Pengajuan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
         "/api/ketersediaan": {
             "get": {
                 "tags": [
@@ -176,6 +511,364 @@
                         "description": "Format bulan tidak valid"
                     }
                 }
+            }
+        },
+        "/api/laboran/pengajuan": {
+            "get": {
+                "tags": [
+                    "Petugas Laboran"
+                ],
+                "summary": "Daftar pengajuan yang siap divalidasi Laboran",
+                "description": "Mengembalikan pengajuan yang sudah diverifikasi Kepala Lab (status: diverifikasi) dan pengajuan yang sudah selesai. Dapat difilter berdasarkan status dan tipe. Hanya dapat diakses oleh Petugas Laboran.",
+                "operationId": "1550e79fc0a8979c64a6ee646aee0a12",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Default: diverifikasi. Isi kosong untuk tampilkan semua.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "diverifikasi",
+                                "disetujui",
+                                "ditolak",
+                                "selesai"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tipe",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ruangan",
+                                "alat",
+                                "pengujian"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar pengajuan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "tipe_pengajuan": {
+                                                        "type": "string",
+                                                        "example": "alat"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "diverifikasi"
+                                                    },
+                                                    "judul_proyek": {
+                                                        "type": "string",
+                                                        "example": "Pengukuran Rangkaian"
+                                                    },
+                                                    "dibuat_pada": {
+                                                        "type": "string",
+                                                        "example": "22 Apr 2026, 16:00"
+                                                    },
+                                                    "pengaju": {
+                                                        "properties": {
+                                                            "nama": {
+                                                                "type": "string",
+                                                                "example": "Budi Santoso"
+                                                            },
+                                                            "nim": {
+                                                                "type": "string",
+                                                                "example": "04231011"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Akses ditolak — bukan Petugas Laboran"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/laboran/pengajuan/{id}": {
+            "get": {
+                "tags": [
+                    "Petugas Laboran"
+                ],
+                "summary": "Detail satu pengajuan untuk Laboran",
+                "description": "Menampilkan detail lengkap pengajuan beserta info pengaju. Digunakan Laboran untuk mengecek detail sebelum validasi fisik.",
+                "operationId": "9e51a61a55b186c7156bea5efb7d194d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengajuan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "tipe_pengajuan": {
+                                                    "type": "string",
+                                                    "example": "alat"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "diverifikasi"
+                                                },
+                                                "catatan_reviewer": {
+                                                    "type": "string",
+                                                    "example": "Dokumen lengkap",
+                                                    "nullable": true
+                                                },
+                                                "pengaju": {
+                                                    "properties": {
+                                                        "nama": {
+                                                            "type": "string",
+                                                            "example": "Budi Santoso"
+                                                        },
+                                                        "nim": {
+                                                            "type": "string",
+                                                            "example": "04231011"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "detail_alat": {
+                                                    "properties": {
+                                                        "nama_alat": {
+                                                            "type": "string",
+                                                            "example": "Osiloskop Digital"
+                                                        },
+                                                        "jumlah_dipinjam": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "tanggal_mulai": {
+                                                            "type": "string",
+                                                            "example": "2026-05-01"
+                                                        },
+                                                        "tanggal_selesai": {
+                                                            "type": "string",
+                                                            "example": "2026-05-03"
+                                                        },
+                                                        "keperluan_spesifik": {
+                                                            "type": "string",
+                                                            "example": "Pengukuran tegangan"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pengajuan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/laboran/pengajuan/{id}/validasi": {
+            "patch": {
+                "tags": [
+                    "Petugas Laboran"
+                ],
+                "summary": "Validasi logistik — setujui atau tolak pengajuan yang sudah diverifikasi",
+                "description": "Laboran mengkonfirmasi ketersediaan fisik (stok alat, ketersediaan ruangan). Hanya pengajuan berstatus `diverifikasi` yang bisa divalidasi.",
+                "operationId": "c5b6616692ce475bdcf7444998276d1b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "disetujui",
+                                        "enum": [
+                                            "disetujui",
+                                            "ditolak"
+                                        ]
+                                    },
+                                    "catatan_reviewer": {
+                                        "type": "string",
+                                        "example": "Stok alat tersedia, pengajuan disetujui.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Validasi berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengajuan berhasil disetujui."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "disetujui"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pengajuan belum diverifikasi Kepala Lab atau sudah diproses"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/laboran/pengajuan/{id}/selesai": {
+            "patch": {
+                "tags": [
+                    "Petugas Laboran"
+                ],
+                "summary": "Tandai pengajuan sebagai selesai (pengembalian alat/ruangan)",
+                "description": "Digunakan Laboran untuk menutup pengajuan setelah alat dikembalikan atau masa pemakaian ruangan berakhir. Hanya pengajuan berstatus `disetujui` yang bisa ditandai selesai.",
+                "operationId": "c0620287d3504291c5b96a0f31ccaa4b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pengajuan berhasil ditandai selesai",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengajuan berhasil ditandai sebagai selesai."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "selesai"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pengajuan belum berstatus disetujui"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
             }
         },
         "/api/ruangan": {
@@ -922,7 +1615,15 @@
         },
         {
             "name": "Pengguna (Semua Role)",
-            "description": "Pengguna (Semua Role)"
+            "description": "Endpoint profil, ketersediaan, dan pengajuan — dapat diakses semua user yang sudah login (mahasiswa, dosen, tendik)"
+        },
+        {
+            "name": "Kepala Laboratorium",
+            "description": "Endpoint verifikasi pengajuan — hanya dapat diakses oleh Kepala Laboratorium"
+        },
+        {
+            "name": "Petugas Laboran",
+            "description": "Endpoint validasi logistik & penutupan pengajuan — hanya dapat diakses oleh Petugas Laboran"
         }
     ]
 }

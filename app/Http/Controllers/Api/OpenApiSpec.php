@@ -27,6 +27,18 @@ use OpenApi\Attributes as OA;
     name: 'Autentikasi',
     description: 'Endpoint untuk login, register, logout, dan data user aktif'
 )]
+#[OA\Tag(
+    name: 'Pengguna (Semua Role)',
+    description: 'Endpoint profil, ketersediaan, dan pengajuan — dapat diakses semua user yang sudah login (mahasiswa, dosen, tendik)'
+)]
+#[OA\Tag(
+    name: 'Kepala Laboratorium',
+    description: 'Endpoint verifikasi pengajuan — hanya dapat diakses oleh Kepala Laboratorium'
+)]
+#[OA\Tag(
+    name: 'Petugas Laboran',
+    description: 'Endpoint validasi logistik & penutupan pengajuan — hanya dapat diakses oleh Petugas Laboran'
+)]
 
 // ============================================================
 // Dokumentasi virtual untuk endpoint yang dikelola Fortify

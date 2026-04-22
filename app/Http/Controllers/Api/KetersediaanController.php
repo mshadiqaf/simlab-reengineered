@@ -192,12 +192,14 @@ class KetersediaanController extends Controller
         }
 
         return response()->json([
-            'bulan'   => $bulan,
-            'filter'  => [
-                'tipe' => $tipe,
-                'cari' => $cari,
+            'data' => [
+                'bulan'    => $bulan,
+                'filter'   => [
+                    'tipe' => $tipe,
+                    'cari' => $cari,
+                ],
+                'kalender' => $kalender,
             ],
-            'kalender' => $kalender,
         ]);
     }
 }
