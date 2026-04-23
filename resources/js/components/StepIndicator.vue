@@ -2,9 +2,12 @@
 import { Check } from 'lucide-vue-next';
 
 defineProps<{
-  steps: string[];
+  steps: (string | { title: string, icon?: any })[];
   currentStep: number;
 }>();
+
+const getStepTitle = (step: any) => typeof step === 'string' ? step : step.title;
+const getStepIcon = (step: any) => typeof step === 'string' ? null : step.icon;
 </script>
 
 <template>
@@ -35,6 +38,7 @@ defineProps<{
           ]"
         >
           <Check v-if="index < currentStep" class="w-5 h-5" />
+          <component v-else-if="getStepIcon(step)" :is="getStepIcon(step)" class="w-5 h-5" />
           <span v-else class="text-sm font-semibold">{{ index + 1 }}</span>
         </div>
         <span 
@@ -43,7 +47,7 @@ defineProps<{
             index <= currentStep ? 'text-foreground' : 'text-muted-foreground'
           ]"
         >
-          {{ $t(step) }}
+          {{ $t(getStepTitle(step)) }}
         </span>
       </div>
     </div>
