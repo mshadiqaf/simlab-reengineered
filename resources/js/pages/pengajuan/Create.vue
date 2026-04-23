@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
+import { ArrowLeft, Loader2, Save } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import StepIndicator from '@/components/StepIndicator.vue';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, Calendar as CalendarIcon } from 'lucide-vue-next';
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import StepIndicator from '@/components/StepIndicator.vue';
+import { Textarea } from '@/components/ui/textarea';
 import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
 import type { Ruangan, Alat, JenisPengujian } from '@/types/simlab';
 
 defineOptions({
@@ -54,7 +53,7 @@ const form = ref({
   tujuan_penggunaan: '',
   dosen_pembimbing: '',
   email_dosen: '',
-  
+
   // Ruangan
   ruangan_id: '',
   tanggal_mulai: '',
@@ -63,12 +62,12 @@ const form = ref({
   waktu_selesai: '',
   jumlah_pengguna: 1,
   catatan_alat_bahan: '',
-  
+
   // Alat
   alat_id: '',
   jumlah_dipinjam: 1,
   keperluan_spesifik: '',
-  
+
   // Pengujian
   jenis_pengujian_id: '',
   nama_sampel: '',
@@ -82,6 +81,7 @@ const isStepValid = computed(() => {
   if (currentStep.value === 0) {
     return form.value.tipe_pengajuan && form.value.judul_proyek;
   }
+
   if (currentStep.value === 1) {
     if (form.value.tipe_pengajuan === 'ruangan') {
       return form.value.ruangan_id && form.value.tanggal_mulai && form.value.tanggal_selesai;
@@ -91,6 +91,7 @@ const isStepValid = computed(() => {
       return form.value.jenis_pengujian_id && form.value.nama_sampel && form.value.jumlah_sampel > 0;
     }
   }
+
   return true;
 });
 
@@ -149,25 +150,40 @@ const onSubmit = async () => {
 
 // Summary labels
 const typeLabel = computed(() => {
-  if (form.value.tipe_pengajuan === 'ruangan') return 'Peminjaman Ruangan';
-  if (form.value.tipe_pengajuan === 'alat') return 'Peminjaman Alat';
-  if (form.value.tipe_pengajuan === 'pengujian') return 'Layanan Pengujian';
+  if (form.value.tipe_pengajuan === 'ruangan') {
+return 'Peminjaman Ruangan';
+}
+
+  if (form.value.tipe_pengajuan === 'alat') {
+return 'Peminjaman Alat';
+}
+
+  if (form.value.tipe_pengajuan === 'pengujian') {
+return 'Layanan Pengujian';
+}
+
   return '-';
 });
 
 const resourceLabel = computed(() => {
   if (form.value.tipe_pengajuan === 'ruangan') {
     const r = ruanganList.value?.find(x => x.id === parseInt(form.value.ruangan_id));
+
     return r ? r.nama_ruangan : '-';
   }
+
   if (form.value.tipe_pengajuan === 'alat') {
     const a = alatList.value?.find(x => x.id === parseInt(form.value.alat_id));
+
     return a ? a.nama_alat : '-';
   }
+
   if (form.value.tipe_pengajuan === 'pengujian') {
     const p = pengujianList.value?.find(x => x.id === parseInt(form.value.jenis_pengujian_id));
+
     return p ? p.nama_pengujian : '-';
   }
+
   return '-';
 });
 </script>
@@ -175,7 +191,7 @@ const resourceLabel = computed(() => {
 <template>
   <Head title="Pengajuan Baru" />
 
-  <div class="flex flex-col gap-6 p-4 max-w-3xl mx-auto">
+  <div class="flex flex-col gap-6 p-4 max-w-5xl mx-auto w-full">
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="$inertia.visit('/pengajuan')">
         <ArrowLeft class="w-5 h-5" />
@@ -189,13 +205,13 @@ const resourceLabel = computed(() => {
     <StepIndicator :steps="steps" :current-step="currentStep" class="my-4" />
 
     <Card>
-      <CardContent class="pt-6">
+      <CardContent class="">
         <!-- STEP 0: Data Umum -->
         <div v-show="currentStep === 0" class="space-y-4">
           <div class="space-y-2">
             <Label>Tipe Pengajuan <span class="text-red-500">*</span></Label>
             <Select v-model="form.tipe_pengajuan">
-              <SelectTrigger>
+              <SelectTrigger class="w-full">
                 <SelectValue placeholder="Pilih tipe layanan" />
               </SelectTrigger>
               <SelectContent>
@@ -232,13 +248,13 @@ const resourceLabel = computed(() => {
 
         <!-- STEP 1: Detail Spesifik -->
         <div v-show="currentStep === 1" class="space-y-4">
-          
+
           <!-- Detail Ruangan -->
           <template v-if="form.tipe_pengajuan === 'ruangan'">
             <div class="space-y-2">
               <Label>Ruangan <span class="text-red-500">*</span></Label>
               <Select v-model="form.ruangan_id">
-                <SelectTrigger>
+                <SelectTrigger class="w-full">
                   <SelectValue placeholder="Pilih ruangan laboratorium" />
                 </SelectTrigger>
                 <SelectContent>
@@ -273,7 +289,7 @@ const resourceLabel = computed(() => {
                 <Input type="number" v-model="form.jumlah_pengguna" min="1" />
               </div>
             </div>
-            
+
             <div class="space-y-2">
               <Label>Catatan Alat & Bahan</Label>
               <Textarea v-model="form.catatan_alat_bahan" placeholder="Alat atau bahan bawaan/yang dibutuhkan" rows="3" />
@@ -285,7 +301,7 @@ const resourceLabel = computed(() => {
             <div class="space-y-2">
               <Label>Alat <span class="text-red-500">*</span></Label>
               <Select v-model="form.alat_id">
-                <SelectTrigger>
+                <SelectTrigger class="w-full">
                   <SelectValue placeholder="Pilih alat laboratorium" />
                 </SelectTrigger>
                 <SelectContent>
@@ -324,7 +340,7 @@ const resourceLabel = computed(() => {
             <div class="space-y-2">
               <Label>Jenis Pengujian <span class="text-red-500">*</span></Label>
               <Select v-model="form.jenis_pengujian_id">
-                <SelectTrigger>
+                <SelectTrigger class="w-full">
                   <SelectValue placeholder="Pilih jenis pengujian" />
                 </SelectTrigger>
                 <SelectContent>
@@ -357,10 +373,10 @@ const resourceLabel = computed(() => {
 
         <!-- STEP 2: Review & Submit -->
         <div v-show="currentStep === 2" class="space-y-6">
-          
+
           <div class="bg-muted p-4 rounded-lg space-y-4">
             <h3 class="font-semibold text-lg border-b pb-2">Ringkasan Pengajuan</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3">
               <div>
                 <p class="text-sm text-muted-foreground">Tipe Pengajuan</p>
@@ -378,7 +394,7 @@ const resourceLabel = computed(() => {
                 <p class="text-sm text-muted-foreground">Tujuan Penggunaan</p>
                 <p class="font-medium">{{ form.tujuan_penggunaan }}</p>
               </div>
-              
+
               <template v-if="form.tipe_pengajuan === 'ruangan' || form.tipe_pengajuan === 'alat'">
                 <div>
                   <p class="text-sm text-muted-foreground">Tanggal Mulai</p>
@@ -391,7 +407,7 @@ const resourceLabel = computed(() => {
               </template>
             </div>
           </div>
-          
+
           <div v-if="submitError" class="p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
             {{ submitError }}
           </div>

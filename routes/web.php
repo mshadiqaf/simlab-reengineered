@@ -23,6 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Laboran
     Route::inertia('laboran', 'laboran/Index')->name('laboran.index');
     Route::inertia('laboran/{id}', 'laboran/Show')->name('laboran.show');
+
+    // Master Data
+    Route::inertia('master-data/ruangan', 'master-data/ruangan/Index')->name('master-data.ruangan.index');
+    Route::inertia('master-data/alat', 'master-data/alat/Index')->name('master-data.alat.index');
+    Route::inertia('master-data/pengujian', 'master-data/pengujian/Index')->name('master-data.pengujian.index');
 });
 
 use App\Http\Controllers\Api\MasterDataController;

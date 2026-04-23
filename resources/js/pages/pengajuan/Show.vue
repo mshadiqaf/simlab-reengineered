@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, User, Clock, FileText, CheckCircle2 } from 'lucide-vue-next';
-import { useApi } from '@/composables/useApi';
-import type { Pengajuan } from '@/types/simlab';
-import StatusBadge from '@/components/StatusBadge.vue';
+import { Head } from '@inertiajs/vue3';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id as idLocale } from 'date-fns/locale';
+import { ArrowLeft, Calendar, CheckCircle2, FileText, User } from 'lucide-vue-next';
+import { onMounted } from 'vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
+import type { Pengajuan } from '@/types/simlab';
 
 defineOptions({
   layout: {
@@ -21,7 +21,6 @@ defineOptions({
   },
 });
 
-const page = usePage<any>();
 const props = defineProps<{
   id: string;
 }>();
@@ -29,14 +28,14 @@ const props = defineProps<{
 const { data: pengajuan, loading, execute } = useApi<Pengajuan>(`/api/pengajuan/${props.id}`);
 
 onMounted(() => {
-  execute('');
+  execute();
 });
 </script>
 
 <template>
   <Head title="Detail Pengajuan" />
 
-  <div class="flex flex-col gap-6 p-4 max-w-4xl mx-auto">
+  <div class="flex flex-col gap-6 p-4 max-w-5xl mx-auto w-full">
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="$inertia.visit('/pengajuan')">
         <ArrowLeft class="w-5 h-5" />
@@ -44,7 +43,7 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Detail Pengajuan</h1>
         <p class="text-muted-foreground" v-if="pengajuan">
-          Dibuat pada {{ format(new Date(pengajuan.dibuat_pada), 'dd MMMM yyyy', { locale: id }) }}
+          Dibuat pada {{ format(new Date(pengajuan.dibuat_pada), 'dd MMMM yyyy', { locale: idLocale }) }}
         </p>
       </div>
       <div class="ml-auto" v-if="pengajuan">

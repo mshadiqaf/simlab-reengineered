@@ -1,16 +1,14 @@
 import { ref  } from 'vue';
 import type {Ref} from 'vue';
 
-interface ApiOptions extends RequestInit {
-    // Additional options can be added here
-}
+type ApiOptions = RequestInit;
 
 export function useApi<T = any>(baseUrl: string = '/api') {
     const data: Ref<T | null> = ref(null);
     const error: Ref<Error | null> = ref(null);
     const loading: Ref<boolean> = ref(false);
 
-    const execute = async (endpoint: string, options: ApiOptions = {}): Promise<T | null> => {
+    const execute = async (endpoint: string = '', options: ApiOptions = {}): Promise<T | null> => {
         loading.value = true;
         error.value = null;
 

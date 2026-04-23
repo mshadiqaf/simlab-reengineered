@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, FileText, Calendar, PlusCircle, CheckSquare, ClipboardCheck } from 'lucide-vue-next';
+import { LayoutGrid, FileText, Calendar, PlusCircle, CheckSquare, ClipboardCheck, DoorOpen, Wrench, FlaskConical } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -22,8 +22,17 @@ import type { NavItem } from '@/types';
 const page = usePage();
 
 const mainNavItems = computed<NavItem[]>(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  
+  // getRoleNames() from Spatie can serialize as an object; normalise to plain array
+  const rawRoles = page.props.auth?.user?.roles ?? [];
+  const roles: string[] = Array.isArray(rawRoles)
+    ? rawRoles
+    : Object.values(rawRoles as Record<string, string>);
+
+  // Temporary debug — remove after confirming sidebar works
+  if (import.meta.env.DEV) {
+    console.log('[AppSidebar] auth.user:', page.props.auth?.user, '| roles:', roles);
+  }
+
   const baseItems: NavItem[] = [
     {
       title: 'Dashboard',
@@ -66,6 +75,21 @@ const mainNavItems = computed<NavItem[]>(() => {
         href: '/ketersediaan',
         icon: Calendar,
       },
+      {
+        title: 'Ruangan',
+        href: '/master-data/ruangan',
+        icon: DoorOpen,
+      },
+      {
+        title: 'Alat',
+        href: '/master-data/alat',
+        icon: Wrench,
+      },
+      {
+        title: 'Jenis Pengujian',
+        href: '/master-data/pengujian',
+        icon: FlaskConical,
+      },
     ];
   }
 
@@ -81,6 +105,21 @@ const mainNavItems = computed<NavItem[]>(() => {
         title: 'Availability',
         href: '/ketersediaan',
         icon: Calendar,
+      },
+      {
+        title: 'Ruangan',
+        href: '/master-data/ruangan',
+        icon: DoorOpen,
+      },
+      {
+        title: 'Alat',
+        href: '/master-data/alat',
+        icon: Wrench,
+      },
+      {
+        title: 'Jenis Pengujian',
+        href: '/master-data/pengujian',
+        icon: FlaskConical,
       },
     ];
   }

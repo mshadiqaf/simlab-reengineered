@@ -3,6 +3,7 @@ export interface Ruangan {
     id: number;
     nama_ruangan: string;
     kapasitas: number;
+    deskripsi?: string;
     created_at?: string;
     updated_at?: string;
 }

@@ -13,7 +13,7 @@ const hasIcon = computed(() => !!props.icon && !hasImage.value);
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center p-8 text-center min-h-[300px] border border-dashed rounded-xl bg-card">
+  <div class="flex flex-col items-center justify-center p-8 text-center min-h-72 border border-dashed rounded-xl bg-card">
     <div v-if="hasImage" class="mb-4">
       <img :src="imageSrc" alt="" class="w-48 h-auto object-contain opacity-80" />
     </div>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Check } from 'lucide-vue-next';
-import { computed } from 'vue';
 
-const props = defineProps<{
+defineProps<{
   steps: string[];
   currentStep: number;
 }>();

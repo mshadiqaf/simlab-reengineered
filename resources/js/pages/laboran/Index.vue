@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent } from '@/components/ui/card';
-import { useApi } from '@/composables/useApi';
-import type { Pengajuan } from '@/types/simlab';
-import DataTable, { type Column } from '@/components/DataTable.vue';
-import StatusBadge from '@/components/StatusBadge.vue';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { onMounted } from 'vue';
+import DataTable from '@/components/DataTable.vue';
+import type {Column} from '@/components/DataTable.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
+import type { Pengajuan } from '@/types/simlab';
 
 defineOptions({
   layout: {

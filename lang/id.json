@@ -124,5 +124,14 @@
     "Verify": "Verifikasi",
     "Reject": "Tolak",
     "Approve": "Setujui",
-    "Mark as Done": "Tandai Selesai"
+    "Mark as Done": "Tandai Selesai",
+    "Type your request (e.g., book lab tomorrow at 1 PM)": "Ketik permintaan Anda (contoh: pesan lab besok jam 1 siang)",
+    "Ask AI": "Tanya AI",
+    "Recent Booking Status": "Status Pemesanan Terbaru",
+    "View All": "Lihat Semua",
+    "Resource": "Sumber Daya",
+    "No submissions yet": "Belum ada pengajuan",
+    "Your last 5 submissions": "5 pengajuan terakhir Anda",
+    "Latest submissions received": "Pengajuan terbaru yang masuk",
+    "Start a new submission through AI assistant or sidebar.": "Mulai pengajuan baru melalui AI assistant atau sidebar."
 }

@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
+import { ArrowLeft, Check, CheckCircle2, FileText, Loader2, X } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Check, X, Loader2, User, FileText, Calendar, CheckCircle2 } from 'lucide-vue-next';
 import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
 import type { Pengajuan } from '@/types/simlab';
-import StatusBadge from '@/components/StatusBadge.vue';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 
 defineOptions({
   layout: {
@@ -23,7 +21,6 @@ defineOptions({
   },
 });
 
-const page = usePage<any>();
 const props = defineProps<{
   id: string;
 }>();
@@ -33,7 +30,7 @@ const { loading: submittingValidasi, execute: validateAction, error: validateErr
 const { loading: submittingSelesai, execute: selesaiAction, error: selesaiError } = useApi(`/api/laboran/pengajuan/${props.id}/selesai`);
 
 onMounted(() => {
-  execute('');
+  execute();
 });
 
 const catatan = ref('');
@@ -45,35 +42,29 @@ const submitting = computed(() => submittingValidasi.value || submittingSelesai.
 const onValidate = async (status: 'disetujui' | 'ditolak') => {
   if (status === 'ditolak' && !isRejecting.value) {
     isRejecting.value = true;
-    return;
-  }
-  
-  if (status === 'ditolak' && !catatan.value) {
-    alert('Catatan penolakan wajib diisi.');
+
     return;
   }
 
-  const result = await validateAction('', {
+  if (status === 'ditolak' && !catatan.value) {
+    alert('Catatan penolakan wajib diisi.');
+
+    return;
+  }
+
+  await validateAction('', {
     method: 'PATCH',
     body: JSON.stringify({
       status,
       catatan_reviewer: catatan.value
     })
   });
-
-  if (result) {
-    page.props.inertia.visit('/laboran');
-  }
 };
 
 const onSelesai = async () => {
-  const result = await selesaiAction('', {
+  await selesaiAction('', {
     method: 'PATCH',
   });
-
-  if (result) {
-    page.props.inertia.visit('/laboran');
-  }
 };
 </script>
 
@@ -130,7 +121,7 @@ const onSelesai = async () => {
           <div v-if="error" class="mb-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
             {{ error }}
           </div>
-          
+
           <div class="space-y-4">
             <template v-if="pengajuan.status === 'diverifikasi'">
               <div v-if="isRejecting" class="space-y-4 mb-4">
@@ -146,7 +137,7 @@ const onSelesai = async () => {
                   </Button>
                 </div>
               </div>
-              
+
               <div v-else class="flex flex-col sm:flex-row gap-4">
                 <Button variant="destructive" class="flex-1" @click="onValidate('ditolak')">
                   <X class="w-4 h-4 mr-2" /> {{ $t('Reject') }}
@@ -157,7 +148,7 @@ const onSelesai = async () => {
                 </Button>
               </div>
             </template>
-            
+
             <div v-if="pengajuan.status === 'disetujui'" class="flex flex-col gap-4">
               <p class="text-sm text-muted-foreground">
                 Tandai sebagai selesai jika alat sudah dikembalikan atau ruangan selesai digunakan.

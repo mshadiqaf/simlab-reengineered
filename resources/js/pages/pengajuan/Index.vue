@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-vue-next';
-import { useApi } from '@/composables/useApi';
-import type { Pengajuan } from '@/types/simlab';
-import DataTable, { type Column } from '@/components/DataTable.vue';
-import StatusBadge from '@/components/StatusBadge.vue';
+import { Head } from '@inertiajs/vue3';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { PlusCircle } from 'lucide-vue-next';
+import { onMounted } from 'vue';
+import DataTable from '@/components/DataTable.vue';
+import type { Column } from '@/components/DataTable.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
+import type { Pengajuan } from '@/types/simlab';
 
 defineOptions({
   layout: {
@@ -27,7 +28,7 @@ defineOptions({
 const { data: submissions, loading, execute } = useApi<Pengajuan[]>('/api/pengajuan');
 
 onMounted(() => {
-  execute('');
+  execute();
 });
 
 const columns: Column<Pengajuan>[] = [

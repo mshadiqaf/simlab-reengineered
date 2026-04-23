@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { useApi } from '@/composables/useApi';
-import type { KalenderResponse, KalenderEntry } from '@/types/simlab';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Search, Calendar as CalendarIcon } from 'lucide-vue-next';
-import EmptyState from '@/components/EmptyState.vue';
+import { Search, Calendar as CalendarIcon, Clock } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
+import DataTable from '@/components/DataTable.vue';
+import type { Column } from '@/components/DataTable.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
+import type { KalenderResponse } from '@/types/simlab';
 
 defineOptions({
   layout: {
@@ -33,6 +34,36 @@ const fetchKalender = () => {
 onMounted(() => {
   fetchKalender();
 });
+
+const flatTableData = computed(() => {
+  if (!kalenderData.value?.kalender) {
+    return [];
+  }
+  
+  const flat = [];
+
+  for (const [date, entries] of Object.entries(kalenderData.value.kalender)) {
+    for (const entry of (entries as any[])) {
+      flat.push({
+        date,
+        ...entry
+      });
+    }
+  }
+
+  return flat;
+});
+
+const columns: Column<any>[] = [
+  { 
+    key: 'date', 
+    label: 'Date', 
+  },
+  { key: 'waktu', label: 'Waktu' },
+  { key: 'tipe', label: 'Tipe' },
+  { key: 'nama', label: 'Nama / Detail' },
+  { key: 'status', label: 'Status' },
+];
 </script>
 
 <template>
@@ -55,7 +86,7 @@ onMounted(() => {
           <label class="text-sm font-medium">Bulan</label>
           <Input type="month" v-model="monthInput" @change="fetchKalender" />
         </div>
-        <div class="space-y-2 flex-[2] w-full relative">
+        <div class="space-y-2 flex-2 w-full relative">
           <label class="text-sm font-medium">Cari Ruangan/Alat</label>
           <div class="relative">
             <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -71,59 +102,53 @@ onMounted(() => {
       </CardContent>
     </Card>
 
-    <div v-if="loading" class="flex justify-center p-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
-
-    <template v-else-if="kalenderData && Object.keys(kalenderData.kalender).length > 0">
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card v-for="(entries, date) in kalenderData.kalender" :key="date" class="flex flex-col">
-          <CardHeader class="pb-3 border-b bg-muted/50">
-            <CardTitle class="text-base flex items-center gap-2">
-              <CalendarIcon class="w-4 h-4" />
-              {{ format(new Date(date), 'EEEE, dd MMMM yyyy', { locale: id }) }}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-4 flex-1">
-            <div class="space-y-4">
-              <div v-for="(entry, idx) in entries" :key="idx" class="relative pl-4 border-l-2" 
-                :class="{
-                  'border-blue-500': entry.tipe === 'ruangan',
-                  'border-green-500': entry.tipe === 'alat',
-                  'border-purple-500': entry.tipe === 'pengujian',
-                }"
-              >
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-semibold capitalize text-muted-foreground">{{ entry.tipe }}</span>
-                  <StatusBadge :status="entry.status" />
-                </div>
-                <h4 class="font-medium text-sm leading-tight mb-1">{{ entry.nama }}</h4>
-                <p class="text-xs text-muted-foreground" v-if="entry.detail_text">
-                  {{ entry.detail_text }}
-                </p>
-                <div class="flex items-center gap-2 mt-2 text-xs text-muted-foreground" v-if="entry.waktu_mulai">
-                  <Clock class="w-3 h-3" />
-                  {{ entry.waktu_mulai.substring(0,5) }} - {{ entry.waktu_selesai?.substring(0,5) }}
-                </div>
-              </div>
+    <Card>
+      <CardContent class="p-0 sm:p-6">
+        <DataTable 
+          :columns="columns" 
+          :data="flatTableData" 
+          :loading="loading"
+          emptyTitle="Tidak ada jadwal"
+          emptyDescription="Belum ada peminjaman atau kegiatan pada bulan ini."
+        >
+          <template #cell-date="{ row }">
+            <div class="flex items-center gap-2 whitespace-nowrap">
+              <CalendarIcon class="w-4 h-4 text-muted-foreground" />
+              {{ format(new Date(row.date), 'EEEE, dd MMM yyyy', { locale: id }) }}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </template>
+          </template>
+          
+          <template #cell-waktu="{ row }">
+            <div class="flex items-center gap-2 whitespace-nowrap text-muted-foreground" v-if="row.waktu_mulai">
+              <Clock class="w-4 h-4" />
+              {{ row.waktu_mulai.substring(0,5) }} - {{ row.waktu_selesai?.substring(0,5) }}
+            </div>
+            <span v-else class="text-muted-foreground">-</span>
+          </template>
 
-    <Card v-else>
-      <CardContent class="p-0">
-        <EmptyState 
-          title="Tidak ada jadwal" 
-          description="Belum ada peminjaman atau kegiatan pada bulan ini."
-          :icon="CalendarIcon"
-        />
+          <template #cell-tipe="{ row }">
+            <span class="font-medium capitalize" 
+              :class="{
+                'text-blue-600 dark:text-blue-400': row.tipe === 'ruangan',
+                'text-green-600 dark:text-green-400': row.tipe === 'alat',
+                'text-purple-600 dark:text-purple-400': row.tipe === 'pengujian',
+              }">
+              {{ row.tipe }}
+            </span>
+          </template>
+
+          <template #cell-nama="{ row }">
+            <div>
+              <div class="font-medium">{{ row.nama }}</div>
+              <div class="text-xs text-muted-foreground" v-if="row.detail_text">{{ row.detail_text }}</div>
+            </div>
+          </template>
+
+          <template #cell-status="{ row }">
+            <StatusBadge :status="row.status" />
+          </template>
+        </DataTable>
       </CardContent>
     </Card>
   </div>
 </template>
-
-<script lang="ts">
-import { Clock } from 'lucide-vue-next';
-</script>

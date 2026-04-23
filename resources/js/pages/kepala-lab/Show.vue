@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
-import { dashboard } from '@/routes';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Head } from '@inertiajs/vue3';
+import { format } from 'date-fns';
+import { ArrowLeft, Calendar, Check, CheckCircle2, FileText, Loader2, User, X } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Check, X, Loader2, User, FileText, Calendar, CheckCircle2 } from 'lucide-vue-next';
 import { useApi } from '@/composables/useApi';
+import { dashboard } from '@/routes';
 import type { Pengajuan } from '@/types/simlab';
-import StatusBadge from '@/components/StatusBadge.vue';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 
 defineOptions({
   layout: {
@@ -24,7 +22,6 @@ defineOptions({
   },
 });
 
-const page = usePage<any>();
 const props = defineProps<{
   id: string;
 }>();
@@ -33,7 +30,7 @@ const { data: pengajuan, loading, execute } = useApi<Pengajuan>(`/api/kepala-lab
 const { loading: submitting, execute: verifyAction, error } = useApi(`/api/kepala-lab/pengajuan/${props.id}/verifikasi`);
 
 onMounted(() => {
-  execute('');
+  execute();
 });
 
 const isRejecting = ref(false);
@@ -42,25 +39,23 @@ const catatan = ref('');
 const onVerify = async (status: 'diverifikasi' | 'ditolak') => {
   if (status === 'ditolak' && !isRejecting.value) {
     isRejecting.value = true;
-    return;
-  }
-  
-  if (status === 'ditolak' && !catatan.value) {
-    alert('Catatan penolakan wajib diisi.');
+
     return;
   }
 
-  const result = await verifyAction('', {
+  if (status === 'ditolak' && !catatan.value) {
+    alert('Catatan penolakan wajib diisi.');
+
+    return;
+  }
+
+  await verifyAction('', {
     method: 'PATCH',
     body: JSON.stringify({
       status,
       catatan_reviewer: catatan.value
     })
   });
-
-  if (result) {
-    page.props.inertia.visit('/kepala-lab');
-  }
 };
 </script>
 
