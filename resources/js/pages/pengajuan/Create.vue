@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Loader2, Save } from 'lucide-vue-next';
+import { ArrowLeft, Loader2, Save, DoorOpen, Wrench, FlaskConical, MousePointerClick, FileText, LayoutList, CheckSquare } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 import StepIndicator from '@/components/StepIndicator.vue';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,12 @@ defineOptions({
 
 const page = usePage<any>();
 
-const steps = ['Tipe Layanan', 'Data Umum', 'Detail Spesifik', 'Review & Submit'];
+const steps = [
+  { title: 'Tipe Layanan', icon: MousePointerClick },
+  { title: 'Data Umum', icon: FileText },
+  { title: 'Detail Spesifik', icon: LayoutList },
+  { title: 'Review & Submit', icon: CheckSquare }
+];
 const currentStep = ref(0);
 
 // Master Data
