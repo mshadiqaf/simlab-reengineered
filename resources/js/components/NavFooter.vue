@@ -28,7 +28,7 @@ defineProps<Props>();
           >
             <a :href="toUrl(item.href)" target="_blank" rel="noopener noreferrer">
               <component :is="item.icon" />
-              <span>{{ item.title }}</span>
+              <span>{{ $t(item.title) }}</span>
             </a>
           </SidebarMenuButton>
         </SidebarMenuItem>

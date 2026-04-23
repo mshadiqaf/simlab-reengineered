@@ -20,9 +20,9 @@ class UserResource extends JsonResource
             'nim'           => $this->nim,
             'program_studi' => $this->program_studi,
             'email'         => $this->email,
-            // Mengembalikan daftar nama role sebagai array string sederhana
-            // Contoh: ['Mahasiswa'] atau ['Kepala Laboratorium']
-            'roles'         => $this->getRoleNames(),
+            // Menggunakan values()->all() untuk memastikan roles menjadi
+            // plain PHP array [ 'Mahasiswa' ] bukan Collection/object.
+            'roles'         => $this->getRoleNames()->values()->all(),
         ];
     }
 }

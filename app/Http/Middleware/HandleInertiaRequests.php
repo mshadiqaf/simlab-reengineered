@@ -35,11 +35,23 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
-            'auth' => [
-                'user' => $request->user(),
+            'name'        => config('app.name'),
+            'auth'        => [
+                // Menggunakan plain PHP array agar tidak ada data-key wrapping
+                // dari JsonResource dan agar roles selalu berupa array biasa.
+                'user' => $user ? [
+                    'id'            => $user->id,
+                    'name'          => $user->name,
+                    'email'         => $user->email,
+                    'nim'           => $user->nim ?? null,
+                    'program_studi' => $user->program_studi ?? null,
+                    'avatar'        => $user->avatar ?? null,
+                    'roles'         => $user->getRoleNames()->values()->all(),
+                ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
