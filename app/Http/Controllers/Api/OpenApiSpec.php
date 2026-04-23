@@ -39,6 +39,10 @@ use OpenApi\Attributes as OA;
     name: 'Petugas Laboran',
     description: 'Endpoint validasi logistik & penutupan pengajuan — hanya dapat diakses oleh Petugas Laboran'
 )]
+#[OA\Tag(
+    name: 'Admin Master Data (Kepala Lab)',
+    description: 'Endpoint CRUD untuk manajemen Ruangan, Alat, dan Jenis Pengujian — hanya Kepala Laboratorium'
+)]
 
 // ============================================================
 // Dokumentasi virtual untuk endpoint yang dikelola Fortify
