@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Loader2, Save } from 'lucide-vue-next';
+import { ArrowLeft, Loader2, Save, DoorOpen, Wrench, FlaskConical, MousePointerClick, FileText, LayoutList, CheckSquare } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 import StepIndicator from '@/components/StepIndicator.vue';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,12 @@ defineOptions({
 
 const page = usePage<any>();
 
-const steps = ['Data Umum', 'Detail Spesifik', 'Review & Submit'];
+const steps = [
+  { title: 'Tipe Layanan', icon: MousePointerClick },
+  { title: 'Data Umum', icon: FileText },
+  { title: 'Detail Spesifik', icon: LayoutList },
+  { title: 'Review & Submit', icon: CheckSquare }
+];
 const currentStep = ref(0);
 
 // Master Data
@@ -79,10 +84,14 @@ const { loading: submitting, execute: submitForm, error: submitError } = useApi(
 
 const isStepValid = computed(() => {
   if (currentStep.value === 0) {
-    return form.value.tipe_pengajuan && form.value.judul_proyek;
+    return !!form.value.tipe_pengajuan;
   }
 
   if (currentStep.value === 1) {
+    return !!form.value.judul_proyek;
+  }
+
+  if (currentStep.value === 2) {
     if (form.value.tipe_pengajuan === 'ruangan') {
       return form.value.ruangan_id && form.value.tanggal_mulai && form.value.tanggal_selesai;
     } else if (form.value.tipe_pengajuan === 'alat') {
@@ -206,48 +215,83 @@ const resourceLabel = computed(() => {
 
     <Card>
       <CardContent class="">
-        <!-- STEP 0: Data Umum -->
+        <!-- STEP 0: Tipe Layanan -->
         <div v-show="currentStep === 0" class="space-y-4">
-          <div class="space-y-2">
-            <Label>Tipe Pengajuan <span class="text-red-500">*</span></Label>
-            <Select v-model="form.tipe_pengajuan">
-              <SelectTrigger class="w-full">
-                <SelectValue placeholder="Pilih tipe layanan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="ruangan">{{ $t('Room Loan') }}</SelectItem>
-                  <SelectItem value="alat">{{ $t('Equipment Loan') }}</SelectItem>
-                  <SelectItem value="pengujian">{{ $t('Test Service') }}</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
+          <Label>Pilih Tipe Layanan <span class="text-red-500">*</span></Label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Peminjaman Ruangan -->
+            <div 
+              @click="form.tipe_pengajuan = 'ruangan'"
+              class="border-2 rounded-xl p-6 cursor-pointer transition-all hover:border-primary/50"
+              :class="form.tipe_pengajuan === 'ruangan' ? 'border-primary bg-primary/5' : 'border-border'"
+            >
+              <div class="flex flex-col items-center text-center space-y-3">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                  <DoorOpen class="w-8 h-8" />
+                </div>
+                <h3 class="font-semibold text-lg">{{ $t('Room Loan') }}</h3>
+                <p class="text-sm text-muted-foreground">Peminjaman ruangan laboratorium untuk kegiatan praktikum, penelitian, atau lainnya.</p>
+              </div>
+            </div>
 
+            <!-- Peminjaman Alat -->
+            <div 
+              @click="form.tipe_pengajuan = 'alat'"
+              class="border-2 rounded-xl p-6 cursor-pointer transition-all hover:border-primary/50"
+              :class="form.tipe_pengajuan === 'alat' ? 'border-primary bg-primary/5' : 'border-border'"
+            >
+              <div class="flex flex-col items-center text-center space-y-3">
+                <div class="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                  <Wrench class="w-8 h-8" />
+                </div>
+                <h3 class="font-semibold text-lg">{{ $t('Equipment Loan') }}</h3>
+                <p class="text-sm text-muted-foreground">Peminjaman peralatan dan perlengkapan laboratorium untuk menunjang kegiatan.</p>
+              </div>
+            </div>
+
+            <!-- Layanan Pengujian -->
+            <div 
+              @click="form.tipe_pengajuan = 'pengujian'"
+              class="border-2 rounded-xl p-6 cursor-pointer transition-all hover:border-primary/50"
+              :class="form.tipe_pengajuan === 'pengujian' ? 'border-primary bg-primary/5' : 'border-border'"
+            >
+              <div class="flex flex-col items-center text-center space-y-3">
+                <div class="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
+                  <FlaskConical class="w-8 h-8" />
+                </div>
+                <h3 class="font-semibold text-lg">{{ $t('Test Service') }}</h3>
+                <p class="text-sm text-muted-foreground">Permintaan layanan pengujian sampel bahan atau material di laboratorium.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Data Umum -->
+        <div v-show="currentStep === 1" class="space-y-4">
           <div class="space-y-2">
             <Label>Judul Proyek / Penelitian <span class="text-red-500">*</span></Label>
             <Input v-model="form.judul_proyek" placeholder="Masukkan judul penelitian/tugas akhir" />
           </div>
 
           <div class="space-y-2">
-            <Label>Tujuan Penggunaan</Label>
-            <Textarea v-model="form.tujuan_penggunaan" placeholder="Jelaskan tujuan penggunaan secara singkat" rows="3" />
+            <Label>Tujuan Penggunaan <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
+            <Textarea v-model="form.tujuan_penggunaan" class="min-h-32" placeholder="Jelaskan tujuan penggunaan secara singkat" />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label>Dosen Pembimbing</Label>
+              <Label>Dosen Pembimbing <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
               <Input v-model="form.dosen_pembimbing" placeholder="Nama lengkap dosen" />
             </div>
             <div class="space-y-2">
-              <Label>Email Dosen</Label>
+              <Label>Email Dosen <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
               <Input v-model="form.email_dosen" type="email" placeholder="Email aktif dosen" />
             </div>
           </div>
         </div>
 
-        <!-- STEP 1: Detail Spesifik -->
-        <div v-show="currentStep === 1" class="space-y-4">
+        <!-- STEP 2: Detail Spesifik -->
+        <div v-show="currentStep === 2" class="space-y-4">
 
           <!-- Detail Ruangan -->
           <template v-if="form.tipe_pengajuan === 'ruangan'">
@@ -277,11 +321,11 @@ const resourceLabel = computed(() => {
                 <Input type="date" v-model="form.tanggal_selesai" />
               </div>
               <div class="space-y-2">
-                <Label>Waktu Mulai</Label>
+                <Label>Waktu Mulai <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
                 <Input type="time" v-model="form.waktu_mulai" />
               </div>
               <div class="space-y-2">
-                <Label>Waktu Selesai</Label>
+                <Label>Waktu Selesai <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
                 <Input type="time" v-model="form.waktu_selesai" />
               </div>
               <div class="space-y-2 md:col-span-2">
@@ -291,8 +335,8 @@ const resourceLabel = computed(() => {
             </div>
 
             <div class="space-y-2">
-              <Label>Catatan Alat & Bahan</Label>
-              <Textarea v-model="form.catatan_alat_bahan" placeholder="Alat atau bahan bawaan/yang dibutuhkan" rows="3" />
+              <Label>Catatan Alat & Bahan <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
+              <Textarea v-model="form.catatan_alat_bahan" class="min-h-32" placeholder="Alat atau bahan bawaan/yang dibutuhkan" />
             </div>
           </template>
 
@@ -330,8 +374,8 @@ const resourceLabel = computed(() => {
             </div>
 
             <div class="space-y-2">
-              <Label>Keperluan Spesifik</Label>
-              <Textarea v-model="form.keperluan_spesifik" placeholder="Penjelasan tambahan terkait penggunaan alat" rows="3" />
+              <Label>Keperluan Spesifik <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
+              <Textarea v-model="form.keperluan_spesifik" class="min-h-32" placeholder="Penjelasan tambahan terkait penggunaan alat" />
             </div>
           </template>
 
@@ -365,14 +409,14 @@ const resourceLabel = computed(() => {
             </div>
 
             <div class="space-y-2">
-              <Label>Keterangan Tambahan</Label>
-              <Textarea v-model="form.keterangan_tambahan" placeholder="Instruksi khusus pengujian" rows="3" />
+              <Label>Keterangan Tambahan <span class="text-muted-foreground font-normal">(Opsional)</span></Label>
+              <Textarea v-model="form.keterangan_tambahan" class="min-h-32" placeholder="Instruksi khusus pengujian" />
             </div>
           </template>
         </div>
 
-        <!-- STEP 2: Review & Submit -->
-        <div v-show="currentStep === 2" class="space-y-6">
+        <!-- STEP 3: Review & Submit -->
+        <div v-show="currentStep === 3" class="space-y-6">
 
           <div class="bg-muted p-4 rounded-lg space-y-4">
             <h3 class="font-semibold text-lg border-b pb-2">Ringkasan Pengajuan</h3>
@@ -418,7 +462,7 @@ const resourceLabel = computed(() => {
         </div>
       </CardContent>
 
-      <CardFooter class="flex justify-between border-t p-6">
+      <CardFooter class="flex justify-between border-t pt-6">
         <Button variant="outline" @click="prevStep" :disabled="currentStep === 0 || submitting">
           Kembali
         </Button>

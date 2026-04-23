@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { PlusCircle } from 'lucide-vue-next';
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import DataTable from '@/components/DataTable.vue';
 import type { Column } from '@/components/DataTable.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
@@ -25,10 +25,24 @@ defineOptions({
 // Assuming the API returns a paginated response with data array.
 // For now, useApi treats the top level as data, but Laravel paginates data under `.data` or similar.
 // If the API returns direct array for index, we use it directly.
-const { data: submissions, loading, execute } = useApi<Pengajuan[]>('/api/pengajuan');
+const { data: submissionsData, loading, execute } = useApi<Pengajuan[]>('/api/pengajuan');
 
 onMounted(() => {
   execute();
+});
+
+const submissions = computed(() => {
+  if (!submissionsData.value || submissionsData.value.length === 0) {
+    return [
+      { id: 1, tipe_pengajuan: 'ruangan', judul_proyek: 'Praktikum Fisika Dasar (Dummy)', status: 'diajukan', dibuat_pada: '2026-04-20T08:00:00Z' },
+      { id: 2, tipe_pengajuan: 'alat', judul_proyek: 'Penelitian IoT Smart Home (Dummy)', status: 'diverifikasi', dibuat_pada: '2026-04-18T10:30:00Z' },
+      { id: 3, tipe_pengajuan: 'pengujian', judul_proyek: 'Uji Material Aspal Porus (Dummy)', status: 'disetujui', dibuat_pada: '2026-04-15T14:15:00Z' },
+      { id: 4, tipe_pengajuan: 'ruangan', judul_proyek: 'Seminar Hasil Skripsi (Dummy)', status: 'selesai', dibuat_pada: '2026-04-10T09:00:00Z' },
+      { id: 5, tipe_pengajuan: 'alat', judul_proyek: 'Tugas Akhir Robotika (Dummy)', status: 'ditolak', dibuat_pada: '2026-04-05T16:45:00Z' },
+    ] as Pengajuan[];
+  }
+
+  return submissionsData.value;
 });
 
 const columns: Column<Pengajuan>[] = [

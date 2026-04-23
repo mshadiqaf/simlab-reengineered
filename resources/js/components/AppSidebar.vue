@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, FileText, Calendar, PlusCircle, CheckSquare, ClipboardCheck, DoorOpen, Wrench, FlaskConical } from 'lucide-vue-next';
+import { LayoutGrid, FileText, Calendar, CheckSquare, ClipboardCheck, DoorOpen, Wrench, FlaskConical } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -17,114 +17,140 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import type { NavGroup, NavItem } from '@/types';
 
 const page = usePage();
 
-const mainNavItems = computed<NavItem[]>(() => {
-  // getRoleNames() from Spatie can serialize as an object; normalise to plain array
+const mainNavItems = computed<NavGroup[]>(() => {
   const rawRoles = page.props.auth?.user?.roles ?? [];
   const roles: string[] = Array.isArray(rawRoles)
     ? rawRoles
     : Object.values(rawRoles as Record<string, string>);
 
-  // Temporary debug — remove after confirming sidebar works
-  if (import.meta.env.DEV) {
-    console.log('[AppSidebar] auth.user:', page.props.auth?.user, '| roles:', roles);
-  }
-
-  const baseItems: NavItem[] = [
-    {
-      title: 'Dashboard',
-      href: dashboard(),
-      icon: LayoutGrid,
-    },
-  ];
+  const dasborGroup: NavGroup = {
+    title: 'Dasbor',
+    items: [
+      {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+      },
+    ]
+  };
 
   if (roles.includes('Mahasiswa')) {
     return [
-      ...baseItems,
+      dasborGroup,
       {
-        title: 'New Submission',
-        href: '/pengajuan/baru',
-        icon: PlusCircle,
-      },
-      {
-        title: 'Submission History',
-        href: '/pengajuan',
-        icon: FileText,
-      },
-      {
-        title: 'Availability',
-        href: '/ketersediaan',
-        icon: Calendar,
-      },
+        title: 'Layanan',
+        items: [
+          {
+            title: 'Pengajuan',
+            icon: FileText,
+            items: [
+              {
+                title: 'New Submission',
+                href: '/pengajuan/baru',
+              },
+              {
+                title: 'Submission History',
+                href: '/pengajuan',
+              }
+            ]
+          },
+          {
+            title: 'Availability Check',
+            href: '/ketersediaan',
+            icon: Calendar,
+          },
+        ]
+      }
     ];
   }
 
   if (roles.includes('Kepala Laboratorium')) {
     return [
-      ...baseItems,
+      dasborGroup,
       {
-        title: 'Incoming Submissions',
-        href: '/kepala-lab',
-        icon: ClipboardCheck,
+        title: 'Manajemen',
+        items: [
+          {
+            title: 'Incoming Submissions',
+            href: '/kepala-lab',
+            icon: ClipboardCheck,
+          },
+          {
+            title: 'Availability Check',
+            href: '/ketersediaan',
+            icon: Calendar,
+          },
+        ]
       },
       {
-        title: 'Availability',
-        href: '/ketersediaan',
-        icon: Calendar,
-      },
-      {
-        title: 'Ruangan',
-        href: '/master-data/ruangan',
-        icon: DoorOpen,
-      },
-      {
-        title: 'Alat',
-        href: '/master-data/alat',
-        icon: Wrench,
-      },
-      {
-        title: 'Jenis Pengujian',
-        href: '/master-data/pengujian',
-        icon: FlaskConical,
-      },
+        title: 'Master Data',
+        items: [
+          {
+            title: 'Ruangan',
+            href: '/master-data/ruangan',
+            icon: DoorOpen,
+          },
+          {
+            title: 'Alat',
+            href: '/master-data/alat',
+            icon: Wrench,
+          },
+          {
+            title: 'Jenis Pengujian',
+            href: '/master-data/pengujian',
+            icon: FlaskConical,
+          },
+        ]
+      }
     ];
   }
 
   if (roles.includes('Petugas Laboran')) {
     return [
-      ...baseItems,
+      dasborGroup,
       {
-        title: 'Validation',
-        href: '/laboran',
-        icon: CheckSquare,
+        title: 'Operasional',
+        items: [
+          {
+            title: 'Validation',
+            href: '/laboran',
+            icon: CheckSquare,
+          },
+          {
+            title: 'Availability Check',
+            href: '/ketersediaan',
+            icon: Calendar,
+          },
+        ]
       },
       {
-        title: 'Availability',
-        href: '/ketersediaan',
-        icon: Calendar,
-      },
-      {
-        title: 'Ruangan',
-        href: '/master-data/ruangan',
-        icon: DoorOpen,
-      },
-      {
-        title: 'Alat',
-        href: '/master-data/alat',
-        icon: Wrench,
-      },
-      {
-        title: 'Jenis Pengujian',
-        href: '/master-data/pengujian',
-        icon: FlaskConical,
-      },
+        title: 'Master Data',
+        items: [
+          {
+            title: 'Ruangan',
+            href: '/master-data/ruangan',
+            icon: DoorOpen,
+          },
+          {
+            title: 'Alat',
+            href: '/master-data/alat',
+            icon: Wrench,
+          },
+          {
+            title: 'Jenis Pengujian',
+            href: '/master-data/pengujian',
+            icon: FlaskConical,
+          },
+        ]
+      }
     ];
   }
 
-  return baseItems;
+  return [dasborGroup];
 });
 
 const footerNavItems: NavItem[] = [];
@@ -145,7 +171,7 @@ const footerNavItems: NavItem[] = [];
     </SidebarHeader>
 
     <SidebarContent>
-      <NavMain :items="mainNavItems" />
+      <NavMain :groups="mainNavItems" />
     </SidebarContent>
 
     <SidebarFooter>
