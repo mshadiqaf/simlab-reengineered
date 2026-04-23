@@ -69,6 +69,7 @@ const user = computed(() => page.props.auth.user);
           :default-value="user.nim"
           autocomplete="nim"
           placeholder="Nomor Induk Mahasiswa / Pegawai"
+          :disabled="user.roles?.includes('Mahasiswa')"
         />
         <InputError class="mt-2" :message="errors.nim" />
       </div>
