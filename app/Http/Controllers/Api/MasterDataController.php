@@ -67,7 +67,7 @@ class MasterDataController extends Controller
     )]
     public function getAlat()
     {
-        $alats = Alat::where('total_stok', '>', 0)->orderBy('nama_alat', 'asc')->get();
+        $alats = Alat::where('available_stock', '>', 0)->orderBy('nama_alat', 'asc')->get();
         return AlatResource::collection($alats);
     }
 

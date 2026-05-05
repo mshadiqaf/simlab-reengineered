@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class JenisPengujian extends Model
 {
+    protected $table = 'test_types';
     protected $guarded = [];
 
     public function detailPengajuan()

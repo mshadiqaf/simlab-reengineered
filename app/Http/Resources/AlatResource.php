@@ -18,7 +18,7 @@ class AlatResource extends JsonResource
             'id' => $this->id,
             'nama_alat' => $this->nama_alat,
             'satuan' => $this->satuan,
-            'total_stok' => $this->total_stok,
+            'total_stok' => $this->total_stock,
         ];
     }
 }

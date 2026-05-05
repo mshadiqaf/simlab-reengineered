@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Alat extends Model
 {
+    protected $table = 'equipment';
     protected $guarded = [];
 
     public function detailPengajuan()
