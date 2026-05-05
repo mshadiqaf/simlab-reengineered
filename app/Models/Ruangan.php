@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ruangan extends Model
 {
+    protected $table = 'rooms';
     protected $guarded = [];
 
     public function detailPengajuan()

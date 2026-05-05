@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 use App\Http\Controllers\Api\MasterDataController;
 use App\Http\Controllers\Api\AdminMasterDataController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\KetersediaanController;
 use App\Http\Controllers\Api\PengajuanController;
@@ -53,6 +54,9 @@ Route::prefix('api')->group(function() {
         Route::get('/user',    [AuthController::class, 'user']);    // lama (tetap dipertahankan)
         Route::get('/profil',  [ProfilController::class, 'show']);
         Route::put('/profil',  [ProfilController::class, 'update']);
+
+        // AI Chatbot
+        Route::post('/chat/message', [ChatController::class, 'message']);
 
         // Transaksi Pengajuan
         Route::post('/pengajuan',       [PengajuanController::class, 'store']);

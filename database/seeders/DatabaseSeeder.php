@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
-            MasterDataSeeder::class,
+            MasterDataSeeder::class, // must run before UserSeeder (seeds program_studies)
             UserSeeder::class,
         ]);
     }
