@@ -7,12 +7,12 @@ import { toUrl } from '@/lib/utils';
 export type UseCurrentUrlReturn = {
   currentUrl: DeepReadonly<ComputedRef<string>>;
   isCurrentUrl: (
-    urlToCheck: NonNullable<InertiaLinkProps['href']>,
+    urlToCheck?: NonNullable<InertiaLinkProps['href']>,
     currentUrl?: string,
     startsWith?: boolean,
   ) => boolean;
-  isCurrentOrParentUrl: (urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) => boolean;
-  whenCurrentUrl: <T, F = null>(urlToCheck: NonNullable<InertiaLinkProps['href']>, ifTrue: T, ifFalse?: F) => T | F;
+  isCurrentOrParentUrl: (urlToCheck?: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) => boolean;
+  whenCurrentUrl: <T, F = null>(urlToCheck?: NonNullable<InertiaLinkProps['href']>, ifTrue?: T, ifFalse?: F) => T | F | null;
 };
 
 const page = usePage();
@@ -22,10 +22,14 @@ const currentUrlReactive = computed(
 
 export function useCurrentUrl(): UseCurrentUrlReturn {
   function isCurrentUrl(
-    urlToCheck: NonNullable<InertiaLinkProps['href']>,
+    urlToCheck?: NonNullable<InertiaLinkProps['href']>,
     currentUrl?: string,
     startsWith: boolean = false,
   ) {
+    if (!urlToCheck) {
+      return false;
+    }
+    
     const urlToCompare = currentUrl ?? currentUrlReactive.value;
     const urlString = toUrl(urlToCheck);
 
@@ -44,11 +48,11 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
     }
   }
 
-  function isCurrentOrParentUrl(urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) {
+  function isCurrentOrParentUrl(urlToCheck?: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) {
     return isCurrentUrl(urlToCheck, currentUrl, true);
   }
 
-  function whenCurrentUrl(urlToCheck: NonNullable<InertiaLinkProps['href']>, ifTrue: any, ifFalse: any = null) {
+  function whenCurrentUrl(urlToCheck?: NonNullable<InertiaLinkProps['href']>, ifTrue?: any, ifFalse: any = null) {
     return isCurrentUrl(urlToCheck) ? ifTrue : ifFalse;
   }
 

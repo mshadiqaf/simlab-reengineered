@@ -62,17 +62,28 @@ class LaboranController extends Controller
     )]
     public function index(Request $request)
     {
-        // Default: tampilkan yang menunggu validasi Laboran (status = diverifikasi)
-        $defaultStatus = $request->status ?? 'diverifikasi';
+        $statusFilter = match($request->status ?? 'diverifikasi') {
+            'diajukan'    => 'submitted',
+            'diverifikasi'=> 'verified',
+            'ditolak'     => 'rejected',
+            'disetujui'   => 'approved',
+            'selesai'     => 'completed',
+            default       => 'verified',
+        };
 
         $pengajuans = Pengajuan::with([
                 'user',
-                'detailRuangan.ruangan',
-                'detailAlat.alat',
-                'detailUji.jenisPengujian',
+                'detailRuangan.room',
+                'detailAlat.equipment',
+                'detailUji.testType',
             ])
-            ->where('status', $defaultStatus)
-            ->when($request->tipe, fn($q) => $q->where('tipe_pengajuan', $request->tipe))
+            ->where('status', $statusFilter)
+            ->when($request->tipe, fn($q) => $q->where('submission_type', match($request->tipe) {
+                'ruangan'   => 'room',
+                'alat'      => 'equipment',
+                'pengujian' => 'testing',
+                default     => $request->tipe,
+            }))
             ->latest()
             ->get();
 
@@ -121,9 +132,9 @@ class LaboranController extends Controller
     {
         $pengajuan = Pengajuan::with([
             'user',
-            'detailRuangan.ruangan',
-            'detailAlat.alat',
-            'detailUji.jenisPengujian',
+            'detailRuangan.room',
+            'detailAlat.equipment',
+            'detailUji.testType',
         ])->findOrFail($id);
 
         return new PengajuanResource($pengajuan);
@@ -170,8 +181,8 @@ class LaboranController extends Controller
     {
         $pengajuan = Pengajuan::findOrFail($id);
 
-        // Guard: hanya pengajuan berstatus 'diverifikasi' yang bisa disetujui/ditolak Laboran
-        if ($pengajuan->status !== 'diverifikasi') {
+        // Guard: hanya pengajuan berstatus 'verified' yang bisa disetujui/ditolak Laboran
+        if ($pengajuan->status !== 'verified') {
             return $this->errorResponse(
                 "Pengajuan tidak dapat divalidasi karena statusnya '{$pengajuan->status}', bukan 'diverifikasi'.",
                 409
@@ -179,8 +190,8 @@ class LaboranController extends Controller
         }
 
         $pengajuan->update([
-            'status'           => $request->status,
-            'catatan_reviewer' => $request->catatan_reviewer ?? $pengajuan->catatan_reviewer,
+            'status'         => $request->status === 'disetujui' ? 'approved' : 'rejected',
+            'reviewer_notes' => $request->catatan_reviewer ?? $pengajuan->reviewer_notes,
         ]);
 
         $aksi = $request->status === 'disetujui' ? 'disetujui' : 'ditolak';
@@ -221,15 +232,15 @@ class LaboranController extends Controller
     {
         $pengajuan = Pengajuan::findOrFail($id);
 
-        // Guard: hanya pengajuan berstatus 'disetujui' yang bisa ditutup
-        if ($pengajuan->status !== 'disetujui') {
+        // Guard: hanya pengajuan berstatus 'approved' yang bisa ditutup
+        if ($pengajuan->status !== 'approved') {
             return $this->errorResponse(
                 "Pengajuan tidak bisa ditandai selesai karena statusnya '{$pengajuan->status}', bukan 'disetujui'.",
                 409
             );
         }
 
-        $pengajuan->update(['status' => 'selesai']);
+        $pengajuan->update(['status' => 'completed']);
 
         return $this->successResponse(
             new PengajuanResource($pengajuan->fresh()),

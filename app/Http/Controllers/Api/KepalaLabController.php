@@ -66,12 +66,24 @@ class KepalaLabController extends Controller
     {
         $pengajuans = Pengajuan::with([
                 'user',
-                'detailRuangan.ruangan',
-                'detailAlat.alat',
-                'detailUji.jenisPengujian',
+                'detailRuangan.room',
+                'detailAlat.equipment',
+                'detailUji.testType',
             ])
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->tipe,   fn($q) => $q->where('tipe_pengajuan', $request->tipe))
+            ->when($request->status, fn($q) => $q->where('status', match($request->status) {
+                'diajukan'    => 'submitted',
+                'diverifikasi'=> 'verified',
+                'ditolak'     => 'rejected',
+                'disetujui'   => 'approved',
+                'selesai'     => 'completed',
+                default       => $request->status,
+            }))
+            ->when($request->tipe, fn($q) => $q->where('submission_type', match($request->tipe) {
+                'ruangan'   => 'room',
+                'alat'      => 'equipment',
+                'pengujian' => 'testing',
+                default     => $request->tipe,
+            }))
             ->latest()
             ->get();
 
@@ -126,9 +138,9 @@ class KepalaLabController extends Controller
     {
         $pengajuan = Pengajuan::with([
             'user',
-            'detailRuangan.ruangan',
-            'detailAlat.alat',
-            'detailUji.jenisPengujian',
+            'detailRuangan.room',
+            'detailAlat.equipment',
+            'detailUji.testType',
         ])->findOrFail($id);
 
         return new PengajuanResource($pengajuan);
@@ -177,8 +189,8 @@ class KepalaLabController extends Controller
     {
         $pengajuan = Pengajuan::findOrFail($id);
 
-        // Guard: hanya pengajuan berstatus 'diajukan' yang bisa diverifikasi
-        if ($pengajuan->status !== 'diajukan') {
+        // Guard: hanya pengajuan berstatus 'submitted' yang bisa diverifikasi
+        if ($pengajuan->status !== 'submitted') {
             return $this->errorResponse(
                 "Pengajuan tidak dapat diverifikasi karena statusnya sudah '{$pengajuan->status}'.",
                 409
@@ -186,8 +198,8 @@ class KepalaLabController extends Controller
         }
 
         $pengajuan->update([
-            'status'           => $request->status,
-            'catatan_reviewer' => $request->catatan_reviewer,
+            'status'         => $request->status === 'diverifikasi' ? 'verified' : 'rejected',
+            'reviewer_notes' => $request->catatan_reviewer,
         ]);
 
         $aksi = $request->status === 'diverifikasi' ? 'diverifikasi' : 'ditolak';

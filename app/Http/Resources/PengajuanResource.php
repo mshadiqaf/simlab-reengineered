@@ -9,16 +9,25 @@ class PengajuanResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $tipeMap = ['room' => 'ruangan', 'equipment' => 'alat', 'testing' => 'pengujian'];
+        $statusMap = [
+            'submitted' => 'diajukan',
+            'verified'  => 'diverifikasi',
+            'rejected'  => 'ditolak',
+            'approved'  => 'disetujui',
+            'completed' => 'selesai',
+        ];
+
         return [
-            'id'              => $this->id,
-            'tipe_pengajuan'  => $this->tipe_pengajuan,
-            'status'          => $this->status,
-            'nomor_hp'        => $this->nomor_hp,
-            'judul_proyek'    => $this->judul_proyek,
-            'tujuan_penggunaan' => $this->tujuan_penggunaan,
-            'dosen_pembimbing'  => $this->dosen_pembimbing,
-            'email_dosen'       => $this->email_dosen,
-            'catatan_reviewer'  => $this->catatan_reviewer,
+            'id'                => $this->id,
+            'tipe_pengajuan'    => $tipeMap[$this->submission_type] ?? $this->submission_type,
+            'status'            => $statusMap[$this->status] ?? $this->status,
+            'nomor_hp'          => $this->phone_number,
+            'judul_proyek'      => $this->project_title,
+            'tujuan_penggunaan' => $this->purpose,
+            'dosen_pembimbing'  => $this->supervisor_name,
+            'email_dosen'       => $this->supervisor_email,
+            'catatan_reviewer'  => $this->reviewer_notes,
             'dibuat_pada'       => $this->created_at->format('d M Y, H:i'),
 
             // Info pengaju — hanya muncul jika relasi user di-load (untuk tampilan Kepala Lab)
@@ -31,29 +40,31 @@ class PengajuanResource extends JsonResource
             ]),
 
             // Detail berbeda sesuai tipe — hanya yang relevan yang akan terisi
-            'detail_ruangan'  => $this->whenLoaded('detailRuangan', fn() => [
-                'ruangan'             => $this->detailRuangan?->ruangan?->nama_ruangan,
-                'kapasitas'           => $this->detailRuangan?->ruangan?->kapasitas,
-                'tanggal_mulai'       => $this->detailRuangan?->tanggal_mulai,
-                'tanggal_selesai'     => $this->detailRuangan?->tanggal_selesai,
-                'waktu_mulai'         => $this->detailRuangan?->waktu_mulai,
-                'waktu_selesai'       => $this->detailRuangan?->waktu_selesai,
-                'jumlah_pengguna'     => $this->detailRuangan?->jumlah_pengguna,
-                'catatan_alat_bahan'  => $this->detailRuangan?->catatan_alat_bahan,
-            ]),
-            'detail_alat'     => $this->whenLoaded('detailAlat', fn() => [
-                'nama_alat'          => $this->detailAlat?->alat?->nama_alat,
-                'jumlah_dipinjam'    => $this->detailAlat?->jumlah_dipinjam,
-                'tanggal_mulai'      => $this->detailAlat?->tanggal_mulai,
-                'tanggal_selesai'    => $this->detailAlat?->tanggal_selesai,
-                'keperluan_spesifik' => $this->detailAlat?->keperluan_spesifik,
-            ]),
-            'detail_pengujian' => $this->whenLoaded('detailUji', fn() => [
-                'jenis_pengujian'    => $this->detailUji?->jenisPengujian?->nama_pengujian,
-                'nama_sampel'        => $this->detailUji?->nama_sampel,
-                'jumlah_sampel'      => $this->detailUji?->jumlah_sampel,
-                'keterangan_tambahan'=> $this->detailUji?->keterangan_tambahan,
-            ]),
+            'detail_ruangan' => $this->whenLoaded('detailRuangan', fn() => $this->detailRuangan ? [
+                'ruangan'            => $this->detailRuangan->room?->nama_ruangan,
+                'kapasitas'          => $this->detailRuangan->room?->kapasitas,
+                'tanggal_mulai'      => $this->detailRuangan->start_date,
+                'tanggal_selesai'    => $this->detailRuangan->end_date,
+                'waktu_mulai'        => $this->detailRuangan->start_time,
+                'waktu_selesai'      => $this->detailRuangan->end_time,
+                'jumlah_pengguna'    => $this->detailRuangan->participant_count,
+                'catatan_alat_bahan' => $this->detailRuangan->equipment_notes,
+            ] : null),
+
+            'detail_alat' => $this->whenLoaded('detailAlat', fn() => $this->detailAlat ? [
+                'nama_alat'          => $this->detailAlat->equipment?->nama_alat,
+                'jumlah_dipinjam'    => $this->detailAlat->quantity_borrowed,
+                'tanggal_mulai'      => $this->detailAlat->start_date,
+                'tanggal_selesai'    => $this->detailAlat->end_date,
+                'keperluan_spesifik' => $this->detailAlat->specific_purpose,
+            ] : null),
+
+            'detail_pengujian' => $this->whenLoaded('detailUji', fn() => $this->detailUji ? [
+                'jenis_pengujian'     => $this->detailUji->testType?->nama_pengujian,
+                'nama_sampel'         => $this->detailUji->sample_name,
+                'jumlah_sampel'       => $this->detailUji->sample_count,
+                'keterangan_tambahan' => $this->detailUji->additional_notes,
+            ] : null),
         ];
     }
 }

@@ -36,8 +36,14 @@ onMounted(() => {
 });
 
 const flatTableData = computed(() => {
-  if (!kalenderData.value?.kalender) {
-    return [];
+  if (!kalenderData.value?.kalender || Object.keys(kalenderData.value.kalender).length === 0) {
+    // Return dummy data for UI preview
+    return [
+      { date: `${monthInput.value}-12`, waktu_mulai: '08:00:00', waktu_selesai: '12:00:00', tipe: 'ruangan', nama: 'Lab. Komputer Dasar A', status: 'disetujui' },
+      { date: `${monthInput.value}-14`, waktu_mulai: '13:00:00', waktu_selesai: '16:00:00', tipe: 'alat', nama: 'Mikroskop Binokuler', status: 'diverifikasi', detail_text: '3 unit' },
+      { date: `${monthInput.value}-15`, tipe: 'pengujian', nama: 'Uji Kuat Tekan Beton', status: 'diajukan', detail_text: '5 sampel' },
+      { date: `${monthInput.value}-20`, waktu_mulai: '09:00:00', waktu_selesai: '15:00:00', tipe: 'ruangan', nama: 'Lab. Jaringan Komputer', status: 'selesai' },
+    ];
   }
   
   const flat = [];
@@ -51,7 +57,13 @@ const flatTableData = computed(() => {
     }
   }
 
-  return flat;
+  return flat.length > 0 ? flat : [
+    // Fallback dummy data if flat array is still empty
+    { date: `${monthInput.value}-12`, waktu_mulai: '08:00:00', waktu_selesai: '12:00:00', tipe: 'ruangan', nama: 'Lab. Komputer Dasar A', status: 'disetujui' },
+    { date: `${monthInput.value}-14`, waktu_mulai: '13:00:00', waktu_selesai: '16:00:00', tipe: 'alat', nama: 'Mikroskop Binokuler', status: 'diverifikasi', detail_text: '3 unit' },
+    { date: `${monthInput.value}-15`, tipe: 'pengujian', nama: 'Uji Kuat Tekan Beton', status: 'diajukan', detail_text: '5 sampel' },
+    { date: `${monthInput.value}-20`, waktu_mulai: '09:00:00', waktu_selesai: '15:00:00', tipe: 'ruangan', nama: 'Lab. Jaringan Komputer', status: 'selesai' },
+  ];
 });
 
 const columns: Column<any>[] = [
@@ -80,7 +92,7 @@ const columns: Column<any>[] = [
     </div>
 
     <!-- Filters -->
-    <Card>
+    <Card class="py-0">
       <CardContent class="p-4 flex flex-col sm:flex-row gap-4 items-end">
         <div class="space-y-2 flex-1 w-full">
           <label class="text-sm font-medium">Bulan</label>
