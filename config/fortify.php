@@ -143,15 +143,16 @@ return [
     |
     */
 
-    'features' => [
+    'features' => array_filter([
         Features::registration(),
         Features::resetPasswords(),
-        Features::emailVerification(),
+        // Email verification is disabled in testing environment
+        env('APP_ENV') === 'testing' ? null : Features::emailVerification(),
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
             // 'window' => 0
         ]),
-    ],
+    ]),
 
 ];
