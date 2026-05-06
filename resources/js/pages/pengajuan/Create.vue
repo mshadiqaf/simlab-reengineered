@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Loader2, Save, DoorOpen, Wrench, FlaskConical, MousePointerClick, FileText, LayoutList, CheckSquare } from 'lucide-vue-next';
+import { ArrowLeft, Loader2, Save, DoorOpen, Wrench, FlaskConical, MousePointerClick, FileText, LayoutList, CheckSquare, Sparkles, X } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 import StepIndicator from '@/components/StepIndicator.vue';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useApi } from '@/composables/useApi';
+import { clearOriginalPrompt, clearSessionFormData, loadFormDataFromSession, loadOriginalPrompt } from '@/composables/useChat';
 import { dashboard } from '@/routes';
 import type { Ruangan, Alat, JenisPengujian } from '@/types/simlab';
 
@@ -38,22 +39,66 @@ const steps = [
   { title: 'Detail Spesifik', icon: LayoutList },
   { title: 'Review & Submit', icon: CheckSquare }
 ];
-const currentStep = ref(0);
+const currentStep   = ref(0);
+const showAiBanner  = ref(false);
+const originalPrompt = ref<string | null>(null);
 
 // Master Data
 const { data: ruanganList, execute: fetchRuangan } = useApi<Ruangan[]>('/api/ruangan');
 const { data: alatList, execute: fetchAlat } = useApi<Alat[]>('/api/alat');
 const { data: pengujianList, execute: fetchPengujian } = useApi<JenisPengujian[]>('/api/pengujian');
 
-onMounted(() => {
-  fetchRuangan();
-  fetchAlat();
-  fetchPengujian();
+onMounted(async () => {
+  await Promise.all([fetchRuangan(), fetchAlat(), fetchPengujian()]);
+  applyAiPrefill();
 });
+
+function applyAiPrefill() {
+  const aiData = loadFormDataFromSession();
+  if (!aiData) return;
+  clearSessionFormData();
+
+  form.value.tipe_pengajuan = aiData.tipe_pengajuan ?? '';
+  form.value.nomor_hp = aiData.nomor_hp ?? '';
+  form.value.judul_proyek = aiData.judul_proyek ?? '';
+  form.value.tujuan_penggunaan = aiData.tujuan_penggunaan ?? '';
+  form.value.dosen_pembimbing = aiData.dosen_pembimbing ?? '';
+  form.value.email_dosen = aiData.email_dosen ?? '';
+
+  if (aiData.tipe_pengajuan === 'ruangan') {
+    form.value.ruangan_id = aiData.ruangan_id ? String(aiData.ruangan_id) : '';
+    form.value.tanggal_mulai = aiData.tanggal_mulai ?? '';
+    form.value.tanggal_selesai = aiData.tanggal_selesai ?? '';
+    form.value.waktu_mulai = aiData.waktu_mulai ?? '';
+    form.value.waktu_selesai = aiData.waktu_selesai ?? '';
+    form.value.jumlah_pengguna = aiData.jumlah_pengguna ?? 1;
+    form.value.catatan_alat_bahan = aiData.catatan_alat_bahan ?? '';
+  } else if (aiData.tipe_pengajuan === 'alat') {
+    form.value.alat_id = aiData.alat_id ? String(aiData.alat_id) : '';
+    form.value.tanggal_mulai = aiData.tanggal_mulai_alat ?? '';
+    form.value.tanggal_selesai = aiData.tanggal_selesai_alat ?? '';
+    form.value.jumlah_dipinjam = aiData.jumlah_dipinjam ?? 1;
+    form.value.keperluan_spesifik = aiData.keperluan_spesifik ?? '';
+  } else if (aiData.tipe_pengajuan === 'pengujian') {
+    form.value.jenis_pengujian_id = aiData.jenis_pengujian_id ? String(aiData.jenis_pengujian_id) : '';
+    form.value.nama_sampel = aiData.nama_sampel ?? '';
+    form.value.jumlah_sampel = aiData.jumlah_sampel ?? 1;
+    form.value.keterangan_tambahan = aiData.keterangan_tambahan ?? '';
+  }
+
+  // Load the original prompt for the AI banner quote
+  originalPrompt.value = loadOriginalPrompt();
+  clearOriginalPrompt();
+
+  // Jump straight to Review step
+  currentStep.value = steps.length - 1;
+  showAiBanner.value = true;
+}
 
 // Form Data
 const form = ref({
   tipe_pengajuan: '',
+  nomor_hp: '',
   judul_proyek: '',
   tujuan_penggunaan: '',
   dosen_pembimbing: '',
@@ -88,7 +133,7 @@ const isStepValid = computed(() => {
   }
 
   if (currentStep.value === 1) {
-    return !!form.value.judul_proyek;
+    return !!form.value.judul_proyek && !!form.value.nomor_hp;
   }
 
   if (currentStep.value === 2) {
@@ -120,6 +165,7 @@ const onSubmit = async () => {
   // Construct payload based on type
   const payload: any = {
     tipe_pengajuan: form.value.tipe_pengajuan,
+    nomor_hp: form.value.nomor_hp,
     judul_proyek: form.value.judul_proyek,
     tujuan_penggunaan: form.value.tujuan_penggunaan,
     dosen_pembimbing: form.value.dosen_pembimbing,
@@ -195,6 +241,54 @@ const resourceLabel = computed(() => {
 
   return '-';
 });
+
+// Build ordered summary rows for Step 3, resolving IDs to names
+const summaryLines = computed(() => {
+  const f = form.value;
+  type Row = { label: string; value: string; required: boolean };
+  const rows: Row[] = [];
+
+  const req = (label: string, value: string | number | undefined | null): Row =>
+    ({ label, value: value ? String(value) : '', required: true });
+  const opt = (label: string, value: string | number | undefined | null): Row =>
+    ({ label, value: value ? String(value) : '', required: false });
+
+  if (f.tipe_pengajuan === 'ruangan') {
+    const r = ruanganList.value?.find(x => x.id === parseInt(f.ruangan_id));
+    rows.push(req('Ruangan', r?.nama_ruangan));
+    rows.push(req('Tanggal Mulai', f.tanggal_mulai));
+    rows.push(req('Tanggal Selesai', f.tanggal_selesai));
+    rows.push(opt('Waktu', f.waktu_mulai ? `${f.waktu_mulai} – ${f.waktu_selesai}` : ''));
+    rows.push(req('Jumlah Pengguna', f.jumlah_pengguna ? `${f.jumlah_pengguna} orang` : ''));
+    rows.push(opt('Catatan Alat & Bahan', f.catatan_alat_bahan));
+  } else if (f.tipe_pengajuan === 'alat') {
+    const a = alatList.value?.find(x => x.id === parseInt(f.alat_id));
+    rows.push(req('Alat', a?.nama_alat));
+    rows.push(req('Jumlah Dipinjam', f.jumlah_dipinjam ? `${f.jumlah_dipinjam} unit` : ''));
+    rows.push(req('Tanggal Mulai', f.tanggal_mulai));
+    rows.push(req('Tanggal Selesai', f.tanggal_selesai));
+    rows.push(opt('Keperluan Spesifik', f.keperluan_spesifik));
+  } else if (f.tipe_pengajuan === 'pengujian') {
+    const p = pengujianList.value?.find(x => x.id === parseInt(f.jenis_pengujian_id));
+    rows.push(req('Jenis Pengujian', p?.nama_pengujian));
+    rows.push(req('Nama Sampel', f.nama_sampel));
+    rows.push(req('Jumlah Sampel', f.jumlah_sampel ? `${f.jumlah_sampel} sampel` : ''));
+    rows.push(opt('Keterangan Tambahan', f.keterangan_tambahan));
+  }
+
+  rows.push(req('Judul Proyek', f.judul_proyek));
+  rows.push(opt('Tujuan Penggunaan', f.tujuan_penggunaan));
+  rows.push(opt('Dosen Pembimbing', f.dosen_pembimbing));
+  rows.push(opt('Email Dosen', f.email_dosen));
+
+  return rows;
+});
+
+// Submit is only allowed when all required summary lines have a value
+const isReadyToSubmit = computed(() =>
+  !!form.value.tipe_pengajuan &&
+  summaryLines.value.filter(r => r.required).every(r => r.value.trim() !== '')
+);
 </script>
 
 <template>
@@ -209,6 +303,21 @@ const resourceLabel = computed(() => {
         <h1 class="text-2xl font-bold tracking-tight">{{ $t('New Submission') }}</h1>
         <p class="text-muted-foreground">Isi formulir berikut untuk mengajukan layanan laboratorium.</p>
       </div>
+    </div>
+
+    <!-- AI Prefill Banner -->
+    <div
+      v-if="showAiBanner"
+      class="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3"
+    >
+      <Sparkles class="w-4 h-4 text-primary mt-0.5 shrink-0" />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-primary">Formulir diisi oleh AI</p>
+        <p class="text-xs text-muted-foreground mt-0.5">Data di bawah dihasilkan berdasarkan permintaan Anda. Periksa dan edit jika perlu sebelum mengirim.</p>
+      </div>
+      <button type="button" @click="showAiBanner = false" class="text-muted-foreground hover:text-foreground shrink-0">
+        <X class="w-4 h-4" />
+      </button>
     </div>
 
     <StepIndicator :steps="steps" :current-step="currentStep" class="my-4" />
@@ -271,6 +380,11 @@ const resourceLabel = computed(() => {
           <div class="space-y-2">
             <Label>Judul Proyek / Penelitian <span class="text-red-500">*</span></Label>
             <Input v-model="form.judul_proyek" placeholder="Masukkan judul penelitian/tugas akhir" />
+          </div>
+
+          <div class="space-y-2">
+            <Label>Nomor HP <span class="text-red-500">*</span></Label>
+            <Input v-model="form.nomor_hp" type="tel" placeholder="Contoh: 08123456789" />
           </div>
 
           <div class="space-y-2">
@@ -415,61 +529,91 @@ const resourceLabel = computed(() => {
           </template>
         </div>
 
-        <!-- STEP 3: Review & Submit -->
-        <div v-show="currentStep === 3" class="space-y-6">
+        <!-- STEP 3: Konfirmasi (read-only summary) -->
+        <div v-show="currentStep === 3" class="space-y-5">
 
-          <div class="bg-muted p-4 rounded-lg space-y-4">
-            <h3 class="font-semibold text-lg border-b pb-2">Ringkasan Pengajuan</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3">
-              <div>
-                <p class="text-sm text-muted-foreground">Tipe Pengajuan</p>
-                <p class="font-medium">{{ typeLabel }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Pilihan (Ruangan/Alat/Pengujian)</p>
-                <p class="font-medium">{{ resourceLabel }}</p>
-              </div>
-              <div class="md:col-span-2">
-                <p class="text-sm text-muted-foreground">Judul Proyek</p>
-                <p class="font-medium">{{ form.judul_proyek }}</p>
-              </div>
-              <div v-if="form.tujuan_penggunaan" class="md:col-span-2">
-                <p class="text-sm text-muted-foreground">Tujuan Penggunaan</p>
-                <p class="font-medium">{{ form.tujuan_penggunaan }}</p>
-              </div>
-
-              <template v-if="form.tipe_pengajuan === 'ruangan' || form.tipe_pengajuan === 'alat'">
-                <div>
-                  <p class="text-sm text-muted-foreground">Tanggal Mulai</p>
-                  <p class="font-medium">{{ form.tanggal_mulai }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-muted-foreground">Tanggal Selesai</p>
-                  <p class="font-medium">{{ form.tanggal_selesai }}</p>
-                </div>
-              </template>
+          <!-- AI banner with original prompt quote -->
+          <div v-if="showAiBanner" class="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+            <Sparkles class="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-primary">Diisi oleh SIMLAB AI</p>
+              <p v-if="originalPrompt" class="mt-0.5 text-xs text-muted-foreground italic truncate">
+                "{{ originalPrompt }}"
+              </p>
+              <p class="mt-1 text-xs text-muted-foreground">
+                Periksa ringkasan di bawah. Klik <strong>Kembali &amp; Edit</strong> jika ada yang perlu diubah.
+              </p>
             </div>
           </div>
 
-          <div v-if="submitError" class="p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
+          <!-- Type badge -->
+          <div class="text-center">
+            <span class="inline-block rounded-full bg-muted px-4 py-1 text-sm font-semibold">
+              {{ typeLabel || '—' }}
+            </span>
+          </div>
+
+          <!-- Summary bullet list -->
+          <ul class="space-y-2.5">
+            <li
+              v-for="row in summaryLines"
+              :key="row.label"
+              class="flex items-start gap-3 text-sm"
+            >
+              <span class="mt-0.5 text-muted-foreground/60">•</span>
+              <span class="w-36 shrink-0 text-muted-foreground">{{ row.label }}</span>
+              <span
+                v-if="row.value"
+                class="font-medium break-words"
+              >{{ row.value }}</span>
+              <span
+                v-else-if="row.required"
+                class="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"
+              >
+                ⚠ Perlu diisi
+              </span>
+              <span v-else class="text-muted-foreground/50">—</span>
+            </li>
+          </ul>
+
+          <!-- Warning if fields are missing -->
+          <p v-if="!isReadyToSubmit" class="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+            Beberapa field wajib belum diisi. Klik <strong>Kembali &amp; Edit</strong> untuk melengkapi data.
+          </p>
+
+          <div v-if="submitError" class="rounded-md bg-red-100 dark:bg-red-900/30 px-3 py-2 text-sm text-red-800 dark:text-red-400">
             {{ submitError }}
           </div>
 
-          <p class="text-sm text-muted-foreground">
+          <p class="text-xs text-muted-foreground">
             Dengan mengirimkan pengajuan ini, Anda menyetujui seluruh tata tertib dan prosedur penggunaan fasilitas laboratorium ITK.
           </p>
         </div>
       </CardContent>
 
       <CardFooter class="flex justify-between border-t pt-6">
-        <Button variant="outline" @click="prevStep" :disabled="currentStep === 0 || submitting">
+        <!-- Step 3: show "Kembali & Edit" → goes to step 0, keeping prefilled data -->
+        <Button
+          v-if="currentStep === steps.length - 1"
+          variant="outline"
+          @click="currentStep = 0"
+          :disabled="submitting"
+        >
+          ← Kembali &amp; Edit
+        </Button>
+        <Button
+          v-else
+          variant="outline"
+          @click="prevStep"
+          :disabled="currentStep === 0 || submitting"
+        >
           Kembali
         </Button>
+
         <Button v-if="currentStep < steps.length - 1" @click="nextStep" :disabled="!isStepValid">
           Selanjutnya
         </Button>
-        <Button v-else @click="onSubmit" :disabled="submitting">
+        <Button v-else @click="onSubmit" :disabled="submitting || !isReadyToSubmit">
           <Loader2 v-if="submitting" class="w-4 h-4 mr-2 animate-spin" />
           <Save v-else class="w-4 h-4 mr-2" />
           Kirim Pengajuan
