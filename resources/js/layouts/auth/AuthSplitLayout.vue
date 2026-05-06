@@ -47,11 +47,11 @@ defineProps<{
 
 <template>
   <div
-    class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0"
+    class="relative grid h-dvh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0"
   >
     <div :class="['lg:p-8', isRegister ? 'order-last' : '']">
       <div class="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[350px]">
-        <div class="flex flex-col space-y-1 text-center">
+        <div class="hidden md:flex flex-col space-y-1 text-center">
           <h1 class="text-2xl font-semibold tracking-tight" v-if="title">
             {{ title }}
           </h1>
@@ -84,7 +84,6 @@ defineProps<{
                   class="h-full w-full object-cover object-center pointer-events-none"
                   draggable="false"
                 />
-                <!-- Subtle overlay for text readability -->
                 <div class="absolute inset-0 bg-zinc-900/30"></div>
               </div>
             </CarouselItem>
