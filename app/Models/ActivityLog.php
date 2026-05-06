@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class ActivityLog extends Model
+{
+    protected $table = 'activity_logs';
+    protected $guarded = [];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the subject model polymorphically.
+     */
+    public function subject(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo(__FUNCTION__, 'subject_type', 'subject_id');
+    }
+}

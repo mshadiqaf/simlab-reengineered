@@ -31,7 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 use App\Http\Controllers\Api\MasterDataController;
+use App\Http\Controllers\Api\AdminMasterDataController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\KetersediaanController;
 use App\Http\Controllers\Api\PengajuanController;
@@ -53,17 +55,34 @@ Route::prefix('api')->group(function() {
         Route::get('/profil',  [ProfilController::class, 'show']);
         Route::put('/profil',  [ProfilController::class, 'update']);
 
+        // AI Chatbot
+        Route::post('/chat/message', [ChatController::class, 'message']);
+
         // Transaksi Pengajuan
         Route::post('/pengajuan',       [PengajuanController::class, 'store']);
         Route::get('/pengajuan',        [PengajuanController::class, 'index']);
         Route::get('/pengajuan/{id}',   [PengajuanController::class, 'show']);
     });
 
-    // ── Kepala Laboratorium ────────────────────────────────────
+    // ── Kepala Laboratorium (Verifikasi + Admin Master Data) ───────
     Route::middleware(['auth', 'role:Kepala Laboratorium'])->prefix('kepala-lab')->group(function () {
+        // Verifikasi Pengajuan
         Route::get('/pengajuan',                   [KepalaLabController::class, 'index']);
         Route::get('/pengajuan/{id}',              [KepalaLabController::class, 'show']);
         Route::patch('/pengajuan/{id}/verifikasi', [KepalaLabController::class, 'verifikasi']);
+
+        // Admin CRUD Master Data
+        Route::post('/ruangan',             [AdminMasterDataController::class, 'storeRuangan']);
+        Route::put('/ruangan/{id}',         [AdminMasterDataController::class, 'updateRuangan']);
+        Route::delete('/ruangan/{id}',      [AdminMasterDataController::class, 'destroyRuangan']);
+
+        Route::post('/alat',                [AdminMasterDataController::class, 'storeAlat']);
+        Route::put('/alat/{id}',            [AdminMasterDataController::class, 'updateAlat']);
+        Route::delete('/alat/{id}',         [AdminMasterDataController::class, 'destroyAlat']);
+
+        Route::post('/jenis-pengujian',         [AdminMasterDataController::class, 'storeJenisPengujian']);
+        Route::put('/jenis-pengujian/{id}',     [AdminMasterDataController::class, 'updateJenisPengujian']);
+        Route::delete('/jenis-pengujian/{id}',  [AdminMasterDataController::class, 'destroyJenisPengujian']);
     });
 
     // ── Petugas Laboran ──────────────────────────────────────

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_pengajuan_ujis', function (Blueprint $table) {
+        Schema::create('test_submission_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pengajuan_id')->constrained('pengajuans')->cascadeOnDelete();
-            $table->foreignId('jenis_pengujian_id')->constrained('jenis_pengujians')->cascadeOnDelete();
-            $table->string('nama_sampel');
-            $table->integer('jumlah_sampel');
-            $table->text('keterangan_tambahan')->nullable();
+            $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
+            $table->foreignId('test_type_id')->constrained('test_types')->cascadeOnDelete();
+            $table->string('sample_name');
+            $table->integer('sample_count');
+            $table->text('additional_notes')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detail_pengajuan_ujis');
+        Schema::dropIfExists('test_submission_details');
     }
 };

@@ -80,50 +80,54 @@ class PengajuanController extends Controller
         }
 
         DB::transaction(function () use ($data, $suratPath, $request, &$pengajuan) {
-            // 1. Buat record induk di tabel pengajuans
+            // 1. Buat record induk di tabel submissions
             $pengajuan = Pengajuan::create([
-                'user_id'            => $request->user()->id,
-                'nomor_hp'           => $data['nomor_hp'],
-                'tipe_pengajuan'     => $data['tipe_pengajuan'],
-                'status'             => 'diajukan',
-                'judul_proyek'       => $data['judul_proyek'] ?? null,
-                'tujuan_penggunaan'  => $data['tujuan_penggunaan'],
-                'dosen_pembimbing'   => $data['dosen_pembimbing'] ?? null,
-                'email_dosen'        => $data['email_dosen'] ?? null,
-                'surat_pengantar_path' => $suratPath,
+                'user_id'           => $request->user()->id,
+                'phone_number'      => $data['nomor_hp'],
+                'submission_type'   => match($data['tipe_pengajuan']) {
+                    'ruangan'   => 'room',
+                    'alat'      => 'equipment',
+                    'pengujian' => 'testing',
+                },
+                'status'            => 'submitted',
+                'project_title'     => $data['judul_proyek'] ?? null,
+                'purpose'           => $data['tujuan_penggunaan'] ?? null,
+                'supervisor_name'   => $data['dosen_pembimbing'] ?? null,
+                'supervisor_email'  => $data['email_dosen'] ?? null,
+                'cover_letter_path' => $suratPath,
             ]);
 
             // 2. Buat record detail sesuai tipe
             match ($data['tipe_pengajuan']) {
                 'ruangan' => $pengajuan->detailRuangan()->create([
-                    'ruangan_id'            => $data['ruangan_id'],
-                    'tanggal_mulai'         => $data['tanggal_mulai'],
-                    'tanggal_selesai'       => $data['tanggal_selesai'],
-                    'waktu_mulai'           => $data['waktu_mulai'],
-                    'waktu_selesai'         => $data['waktu_selesai'],
-                    'jumlah_pengguna'       => $data['jumlah_pengguna'],
-                    'nama_pengguna_lainnya' => $data['nama_pengguna_lainnya'] ?? null,
-                    'catatan_alat_bahan'    => $data['catatan_alat_bahan'] ?? null,
+                    'room_id'            => $data['ruangan_id'],
+                    'start_date'         => $data['tanggal_mulai'],
+                    'end_date'           => $data['tanggal_selesai'],
+                    'start_time'         => $data['waktu_mulai'] ?? null,
+                    'end_time'           => $data['waktu_selesai'] ?? null,
+                    'participant_count'  => $data['jumlah_pengguna'],
+                    'other_participants' => $data['nama_pengguna_lainnya'] ?? null,
+                    'equipment_notes'    => $data['catatan_alat_bahan'] ?? null,
                 ]),
                 'alat' => $pengajuan->detailAlat()->create([
-                    'alat_id'              => $data['alat_id'],
-                    'jumlah_dipinjam'      => $data['jumlah_dipinjam'],
-                    'tanggal_mulai'        => $data['tanggal_mulai_alat'],
-                    'tanggal_selesai'      => $data['tanggal_selesai_alat'],
-                    'keperluan_spesifik'   => $data['keperluan_spesifik'],
-                    'durasi_jam'           => $data['durasi_jam'] ?? null,
+                    'equipment_id'      => $data['alat_id'],
+                    'quantity_borrowed' => $data['jumlah_dipinjam'],
+                    'start_date'        => $data['tanggal_mulai'],
+                    'end_date'          => $data['tanggal_selesai'],
+                    'specific_purpose'  => $data['keperluan_spesifik'] ?? null,
+                    'duration_hours'    => $data['durasi_jam'] ?? null,
                 ]),
                 'pengujian' => $pengajuan->detailUji()->create([
-                    'jenis_pengujian_id'  => $data['jenis_pengujian_id'],
-                    'nama_sampel'         => $data['nama_sampel'],
-                    'jumlah_sampel'       => $data['jumlah_sampel'],
-                    'keterangan_tambahan' => $data['keterangan_tambahan'] ?? null,
+                    'test_type_id'     => $data['jenis_pengujian_id'],
+                    'sample_name'      => $data['nama_sampel'],
+                    'sample_count'     => $data['jumlah_sampel'],
+                    'additional_notes' => $data['keterangan_tambahan'] ?? null,
                 ]),
             };
         });
 
         return $this->successResponse(
-            new PengajuanResource($pengajuan->load(['user', 'detailRuangan.ruangan', 'detailAlat.alat', 'detailUji.jenisPengujian'])),
+            new PengajuanResource($pengajuan->load(['user', 'detailRuangan.room', 'detailAlat.equipment', 'detailUji.testType'])),
             'Pengajuan berhasil disubmit. Silakan tunggu verifikasi dari Kepala Lab.',
             201
         );
@@ -157,7 +161,7 @@ class PengajuanController extends Controller
     )]
     public function index(Request $request)
     {
-        $pengajuans = Pengajuan::with(['detailRuangan.ruangan', 'detailAlat.alat', 'detailUji.jenisPengujian'])
+        $pengajuans = Pengajuan::with(['detailRuangan.room', 'detailAlat.equipment', 'detailUji.testType'])
             ->where('user_id', $request->user()->id)
             ->latest()
             ->get();
@@ -203,7 +207,7 @@ class PengajuanController extends Controller
     )]
     public function show(Request $request, int $id)
     {
-        $pengajuan = Pengajuan::with(['detailRuangan.ruangan', 'detailAlat.alat', 'detailUji.jenisPengujian'])
+        $pengajuan = Pengajuan::with(['detailRuangan.room', 'detailAlat.equipment', 'detailUji.testType'])
             ->findOrFail($id);
 
         // Pastikan user hanya bisa melihat pengajuan miliknya sendiri

@@ -6,6 +6,621 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/kepala-lab/ruangan": {
+            "post": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Tambah ruangan baru",
+                "operationId": "863d69e063e45904d1d2b8efd66ce77e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_ruangan",
+                                    "kapasitas"
+                                ],
+                                "properties": {
+                                    "nama_ruangan": {
+                                        "type": "string",
+                                        "example": "Lab. Fisika Dasar A"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Laboratorium untuk praktikum fisika dasar",
+                                        "nullable": true
+                                    },
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 30
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Ruangan berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ruangan berhasil ditambahkan."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama_ruangan": {
+                                                    "type": "string",
+                                                    "example": "Lab. Fisika Dasar A"
+                                                },
+                                                "kapasitas": {
+                                                    "type": "integer",
+                                                    "example": 30
+                                                },
+                                                "status_aktif": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/ruangan/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Update data ruangan",
+                "operationId": "813e72a34241fe2a6827b2c335fa9a4b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_ruangan": {
+                                        "type": "string",
+                                        "example": "Lab. Fisika Dasar B"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Update deskripsi",
+                                        "nullable": true
+                                    },
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 25
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ruangan berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ruangan berhasil diperbarui."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama_ruangan": {
+                                                    "type": "string",
+                                                    "example": "Lab. Fisika Dasar B"
+                                                },
+                                                "kapasitas": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ruangan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Hapus ruangan",
+                "description": "Ruangan yang sudah memiliki riwayat pengajuan tidak bisa dihapus, hanya bisa dinonaktifkan (`status_aktif: false`).",
+                "operationId": "b25361cebdce5700047a8903d59338b7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ruangan berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ruangan berhasil dihapus."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Ruangan tidak bisa dihapus karena memiliki riwayat pengajuan"
+                    },
+                    "404": {
+                        "description": "Ruangan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/alat": {
+            "post": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Tambah alat baru",
+                "operationId": "54ff579170fc17569e12be927483e055",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_alat",
+                                    "satuan",
+                                    "total_stok"
+                                ],
+                                "properties": {
+                                    "nama_alat": {
+                                        "type": "string",
+                                        "example": "Osiloskop Digital"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Alat ukur sinyal listrik",
+                                        "nullable": true
+                                    },
+                                    "satuan": {
+                                        "type": "string",
+                                        "example": "unit"
+                                    },
+                                    "total_stok": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Alat berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Alat berhasil ditambahkan."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama_alat": {
+                                                    "type": "string",
+                                                    "example": "Osiloskop Digital"
+                                                },
+                                                "satuan": {
+                                                    "type": "string",
+                                                    "example": "unit"
+                                                },
+                                                "total_stok": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/alat/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Update data alat",
+                "operationId": "fd809da018ec3afc11defa7363a8a908",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_alat": {
+                                        "type": "string",
+                                        "example": "Osiloskop Analog"
+                                    },
+                                    "satuan": {
+                                        "type": "string",
+                                        "example": "unit"
+                                    },
+                                    "total_stok": {
+                                        "type": "integer",
+                                        "example": 8
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Alat berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Alat berhasil diperbarui."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama_alat": {
+                                                    "type": "string",
+                                                    "example": "Osiloskop Analog"
+                                                },
+                                                "total_stok": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Alat tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Hapus alat",
+                "operationId": "683e442d12abba1103fe17f2dc3edf3c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alat berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Alat berhasil dihapus."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Alat memiliki riwayat pengajuan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/jenis-pengujian": {
+            "post": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Tambah jenis pengujian baru",
+                "operationId": "7112c427408f2fa74fac340b1d96eb0c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_pengujian"
+                                ],
+                                "properties": {
+                                    "nama_pengujian": {
+                                        "type": "string",
+                                        "example": "Uji Tarik Material"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Pengujian kekuatan tarik bahan logam/polimer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jenis pengujian berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Jenis pengujian berhasil ditambahkan."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama_pengujian": {
+                                                    "type": "string",
+                                                    "example": "Uji Tarik Material"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kepala-lab/jenis-pengujian/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Update jenis pengujian",
+                "operationId": "97e122d1564fb7c7a6f63ef994b64fa4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_pengujian": {
+                                        "type": "string",
+                                        "example": "Uji Lentur Material"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Update deskripsi",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Jenis pengujian berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Master Data (Kepala Lab)"
+                ],
+                "summary": "Hapus jenis pengujian",
+                "operationId": "b356e74c285628136ac364e8721fdb95",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jenis pengujian berhasil dihapus"
+                    },
+                    "409": {
+                        "description": "Masih memiliki riwayat pengajuan"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
         "/api/user": {
             "get": {
                 "tags": [
@@ -1624,6 +2239,10 @@
         {
             "name": "Petugas Laboran",
             "description": "Endpoint validasi logistik & penutupan pengajuan — hanya dapat diakses oleh Petugas Laboran"
+        },
+        {
+            "name": "Admin Master Data (Kepala Lab)",
+            "description": "Endpoint CRUD untuk manajemen Ruangan, Alat, dan Jenis Pengujian — hanya Kepala Laboratorium"
         }
     ]
 }

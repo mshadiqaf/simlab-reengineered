@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rooms', function (Blueprint $table) {
+        Schema::create('program_studies', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_ruangan');
-            $table->text('deskripsi')->nullable();
-            $table->integer('kapasitas');
-            $table->boolean('status_aktif')->default(true);
+            $table->string('name');           // e.g. "S1 Teknik Elektro"
+            $table->string('code')->unique(); // e.g. "TLE"
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rooms');
+        Schema::dropIfExists('program_studies');
     }
 };

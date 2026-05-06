@@ -93,16 +93,22 @@ class KetersediaanController extends Controller
             $kalender[$hari->format('Y-m-d')] = [];
         }
 
+        $statusMap = [
+            'verified'  => 'diverifikasi',
+            'approved'  => 'disetujui',
+            'completed' => 'selesai',
+        ];
+
         // ── 1. Booking Ruangan ──────────────────────────────────────────────
         if (!$tipe || $tipe === 'ruangan') {
-            $bookings = DetailPengajuanRuangan::with(['pengajuan', 'ruangan'])
-                ->whereHas('pengajuan', fn($q) =>
-                    $q->whereIn('status', ['diverifikasi', 'disetujui', 'selesai'])
+            $bookings = DetailPengajuanRuangan::with(['submission', 'room'])
+                ->whereHas('submission', fn($q) =>
+                    $q->whereIn('status', ['verified', 'approved', 'completed'])
                 )
-                ->where('tanggal_mulai', '<=', $akhirBulan->format('Y-m-d'))
-                ->where('tanggal_selesai', '>=', $awalBulan->format('Y-m-d'))
+                ->where('start_date', '<=', $akhirBulan->format('Y-m-d'))
+                ->where('end_date', '>=', $awalBulan->format('Y-m-d'))
                 ->when($cari, fn($q) =>
-                    $q->whereHas('ruangan', fn($r) =>
+                    $q->whereHas('room', fn($r) =>
                         $r->where('nama_ruangan', 'like', "%{$cari}%")
                     )
                 )
@@ -110,18 +116,18 @@ class KetersediaanController extends Controller
 
             foreach ($bookings as $b) {
                 // Hitung irisan antara rentang booking dan rentang bulan
-                $mulai  = max($b->tanggal_mulai, $awalBulan->format('Y-m-d'));
-                $selesai = min($b->tanggal_selesai, $akhirBulan->format('Y-m-d'));
+                $mulai   = max($b->start_date, $awalBulan->format('Y-m-d'));
+                $selesai = min($b->end_date, $akhirBulan->format('Y-m-d'));
 
                 foreach (CarbonPeriod::create($mulai, $selesai) as $hari) {
                     $key = $hari->format('Y-m-d');
                     if (isset($kalender[$key])) {
                         $kalender[$key][] = [
-                            'tipe'         => 'ruangan',
-                            'nama'         => $b->ruangan->nama_ruangan ?? '-',
-                            'waktu_mulai'  => substr($b->waktu_mulai, 0, 5),
-                            'waktu_selesai'=> substr($b->waktu_selesai, 0, 5),
-                            'status'       => $b->pengajuan->status,
+                            'tipe'          => 'ruangan',
+                            'nama'          => $b->room->nama_ruangan ?? '-',
+                            'waktu_mulai'   => $b->start_time ? substr($b->start_time, 0, 5) : null,
+                            'waktu_selesai' => $b->end_time ? substr($b->end_time, 0, 5) : null,
+                            'status'        => $statusMap[$b->submission->status] ?? $b->submission->status,
                         ];
                     }
                 }
@@ -130,31 +136,31 @@ class KetersediaanController extends Controller
 
         // ── 2. Booking Alat ─────────────────────────────────────────────────
         if (!$tipe || $tipe === 'alat') {
-            $bookings = DetailPengajuanAlat::with(['pengajuan', 'alat'])
-                ->whereHas('pengajuan', fn($q) =>
-                    $q->whereIn('status', ['diverifikasi', 'disetujui', 'selesai'])
+            $bookings = DetailPengajuanAlat::with(['submission', 'equipment'])
+                ->whereHas('submission', fn($q) =>
+                    $q->whereIn('status', ['verified', 'approved', 'completed'])
                 )
-                ->where('tanggal_mulai', '<=', $akhirBulan->format('Y-m-d'))
-                ->where('tanggal_selesai', '>=', $awalBulan->format('Y-m-d'))
+                ->where('start_date', '<=', $akhirBulan->format('Y-m-d'))
+                ->where('end_date', '>=', $awalBulan->format('Y-m-d'))
                 ->when($cari, fn($q) =>
-                    $q->whereHas('alat', fn($r) =>
+                    $q->whereHas('equipment', fn($r) =>
                         $r->where('nama_alat', 'like', "%{$cari}%")
                     )
                 )
                 ->get();
 
             foreach ($bookings as $b) {
-                $mulai  = max($b->tanggal_mulai, $awalBulan->format('Y-m-d'));
-                $selesai = min($b->tanggal_selesai, $akhirBulan->format('Y-m-d'));
+                $mulai   = max($b->start_date, $awalBulan->format('Y-m-d'));
+                $selesai = min($b->end_date, $akhirBulan->format('Y-m-d'));
 
                 foreach (CarbonPeriod::create($mulai, $selesai) as $hari) {
                     $key = $hari->format('Y-m-d');
                     if (isset($kalender[$key])) {
                         $kalender[$key][] = [
                             'tipe'           => 'alat',
-                            'nama'           => $b->alat->nama_alat ?? '-',
-                            'jumlah_dipinjam'=> $b->jumlah_dipinjam,
-                            'status'         => $b->pengajuan->status,
+                            'nama'           => $b->equipment->nama_alat ?? '-',
+                            'jumlah_dipinjam'=> $b->quantity_borrowed,
+                            'status'         => $statusMap[$b->submission->status] ?? $b->submission->status,
                         ];
                     }
                 }
@@ -165,27 +171,27 @@ class KetersediaanController extends Controller
         // Tabel detail_pengujian tidak memiliki kolom tanggal tersendiri,
         // sehingga tanggal pengajuan (created_at) digunakan sebagai acuan.
         if (!$tipe || $tipe === 'pengujian') {
-            $bookings = DetailPengajuanUji::with(['pengajuan', 'jenisPengujian'])
-                ->whereHas('pengajuan', fn($q) =>
-                    $q->whereIn('status', ['diverifikasi', 'disetujui', 'selesai'])
+            $bookings = DetailPengajuanUji::with(['submission', 'testType'])
+                ->whereHas('submission', fn($q) =>
+                    $q->whereIn('status', ['verified', 'approved', 'completed'])
                       ->whereBetween('created_at', [$awalBulan, $akhirBulan])
                 )
                 ->when($cari, fn($q) =>
-                    $q->whereHas('jenisPengujian', fn($r) =>
+                    $q->whereHas('testType', fn($r) =>
                         $r->where('nama_pengujian', 'like', "%{$cari}%")
                     )
                 )
                 ->get();
 
             foreach ($bookings as $b) {
-                $key = Carbon::parse($b->pengajuan->created_at)->format('Y-m-d');
+                $key = Carbon::parse($b->submission->created_at)->format('Y-m-d');
                 if (isset($kalender[$key])) {
                     $kalender[$key][] = [
-                        'tipe'           => 'pengujian',
-                        'nama'           => $b->jenisPengujian->nama_pengujian ?? '-',
-                        'nama_sampel'    => $b->nama_sampel,
-                        'jumlah_sampel'  => $b->jumlah_sampel,
-                        'status'         => $b->pengajuan->status,
+                        'tipe'          => 'pengujian',
+                        'nama'          => $b->testType->nama_pengujian ?? '-',
+                        'nama_sampel'   => $b->sample_name,
+                        'jumlah_sampel' => $b->sample_count,
+                        'status'        => $statusMap[$b->submission->status] ?? $b->submission->status,
                     ];
                 }
             }

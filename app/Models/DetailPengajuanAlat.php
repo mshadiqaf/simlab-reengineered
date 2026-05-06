@@ -7,15 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DetailPengajuanAlat extends Model
 {
+    protected $table = 'equipment_submission_details';
     protected $guarded = [];
 
-    public function pengajuan(): BelongsTo
+    public function submission(): BelongsTo
     {
-        return $this->belongsTo(Pengajuan::class);
+        return $this->belongsTo(Pengajuan::class, 'submission_id');
     }
 
-    public function alat(): BelongsTo
+    public function equipment(): BelongsTo
     {
-        return $this->belongsTo(Alat::class);
+        return $this->belongsTo(Alat::class, 'equipment_id');
     }
 }
